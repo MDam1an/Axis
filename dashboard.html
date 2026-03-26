@@ -136,13 +136,12 @@
   <script type="module">
     import { requireAuth, getCurrentUser } from './js/auth.js';
     import { logout } from './js/auth.js';
-    import { renderSidebar, setActivePage } from './js/sidebar.js';
+    import { initSidebar } from './js/sidebar.js';
     import { setTopbarDate, today, daysBetween } from './js/utils.js';
     import { db } from './js/firebase-config.js';
     import { collection, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    document.getElementById('sidebarMount').innerHTML = renderSidebar();
-    setActivePage();
+    initSidebar();
     setTopbarDate();
     requireAuth();
 
