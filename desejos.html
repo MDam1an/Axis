@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis — Desejos</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .desejos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+
+    .desejo-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+      box-shadow: var(--shadow); transition: all var(--transition);
+      position: relative;
+    }
+    .desejo-card:hover { box-shadow: var(--shadow-md); }
+    .desejo-card.feito { opacity: 0.55; }
+    .desejo-card.feito .desejo-name { text-decoration: line-through; }
+
+    .desejo-cat-icon { font-size: 1.75rem; margin-bottom: 10px; }
+    .desejo-name { font-size: 0.9375rem; font-weight: 600; margin-bottom: 4px; }
+    .desejo-note { font-size: 0.8125rem; color: var(--text-2); margin-bottom: 12px; }
+
+    .desejo-footer { display: flex; align-items: center; justify-content: space-between; }
+    .desejo-done-btn {
+      font-size: 0.8125rem; font-weight: 500; padding: 5px 11px;
+      border-radius: 6px; cursor: pointer; transition: all var(--transition); border: none;
+    }
+    .desejo-done-btn.undo { background: var(--success-light); color: var(--success); }
+    .desejo-done-btn.do { background: var(--surface-2); color: var(--text-2); }
+    .desejo-done-btn.do:hover { background: var(--success-light); color: var(--success); }
+
+    .tabs-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 6px 16px; border-radius: 20px; font-size: 0.875rem;
+      font-weight: 500; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-2); cursor: pointer;
+      transition: all var(--transition);
+    }
+    .tab-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebarMount"></div>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Desejos</span>
+      <span class="topbar-date" id="topbarDate"></span>
+    </header>
+    <div class="page-content">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>Lista de Desejos</h1>
+          <p>Filmes, lugares, compras, experiências...</p>
+        </div>
+        <button class="btn btn-primary" id="addDesejoBtn">+ Adicionar</button>
+      </div>
+
+      <div class="tabs-row">
+        <button class="tab-btn active" data-cat="todos">Todos</button>
+        <button class="tab-btn" data-cat="filme">🎬 Filmes/Séries</button>
+        <button class="tab-btn" data-cat="lugar">📍 Lugares</button>
+        <button class="tab-btn" data-cat="compra">🛍️ Compras</button>
+        <button class="tab-btn" data-cat="livro">📚 Livros</button>
+        <button class="tab-btn" data-cat="experiencia">✨ Experiências</button>
+        <button class="tab-btn" data-cat="outro">Outro</button>
+      </div>
+
+      <div class="desejos-grid stagger" id="desejosGrid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">💫</div>
+          <p>Nenhum desejo cadastrado ainda. Adicione o que você quer fazer, ver ou comprar!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalDesejo">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalDesejoTitle">Novo desejo</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editDesejoId">
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-input" id="desejoName" placeholder="O que você quer fazer/ver/comprar?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="desejoCat">
+          <option value="filme">🎬 Filme/Série</option>
+          <option value="lugar">📍 Lugar para visitar</option>
+          <option value="compra">🛍️ Compra</option>
+          <option value="livro">📚 Livro</option>
+          <option value="experiencia">✨ Experiência</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observação (opcional)</label>
+        <textarea class="form-textarea" id="desejoNote" placeholder="Contexto, motivo, com quem..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="saveDesejoBtn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getCurrentUser } from './js/auth.js';
+  import { renderSidebar, setActivePage } from './js/sidebar.js';
+  import { setTopbarDate, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { db } from './js/firebase-config.js';
+  import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  document.getElementById('sidebarMount').innerHTML = renderSidebar();
+  setActivePage(); setTopbarDate(); requireAuth(); bindModalClose();
+
+  const user = await getCurrentUser();
+  if (!user) return;
+  const uid = user.uid;
+  const col = () => collection(db, `users/${uid}/desejos`);
+  let activeCategory = 'todos';
+
+  const catIcons = { filme:'🎬', lugar:'📍', compra:'🛍️', livro:'📚', experiencia:'✨', outro:'💫' };
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      loadDesejos();
+    });
+  });
+
+  async function loadDesejos() {
+    const grid = document.getElementById('desejosGrid');
+    grid.innerHTML = '';
+    const snap = await getDocs(col());
+    let items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    if (activeCategory !== 'todos') items = items.filter(d => d.category === activeCategory);
+
+    if (items.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">💫</div><p>Nenhum item aqui ainda.</p></div>`;
+      return;
+    }
+
+    items.forEach(d => {
+      const icon = catIcons[d.category] || '💫';
+      const card = document.createElement('div');
+      card.className = `desejo-card fade-in ${d.done ? 'feito' : ''}`;
+      card.innerHTML = `
+        <div class="desejo-cat-icon">${icon}</div>
+        <div class="desejo-name">${d.name}</div>
+        ${d.note ? `<div class="desejo-note">${d.note}</div>` : ''}
+        ${d.done ? `<div style="font-size:0.75rem;color:var(--success);margin-bottom:10px;">✓ Concluído</div>` : ''}
+        <div class="desejo-footer">
+          <button class="desejo-done-btn ${d.done ? 'undo' : 'do'}" data-id="${d.id}" data-done="${d.done}">
+            ${d.done ? '↩ Desfazer' : '✓ Feito!'}
+          </button>
+          <div style="display:flex;gap:4px;">
+            <button class="btn btn-ghost btn-icon edit-d" data-id="${d.id}" title="Editar">✏️</button>
+            <button class="btn btn-ghost btn-icon del-d" data-id="${d.id}" title="Excluir">🗑️</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+
+      card.querySelector('.desejo-done-btn').addEventListener('click', async (e) => {
+        const isDone = e.target.dataset.done === 'true';
+        await updateDoc(doc(db, `users/${uid}/desejos`, d.id), { done: !isDone });
+        if (!isDone) toast(`"${d.name}" marcado como feito! 🎉`, 'success');
+        loadDesejos();
+      });
+
+      card.querySelector('.del-d').addEventListener('click', async () => {
+        if (!confirm('Remover este item?')) return;
+        await deleteDoc(doc(db, `users/${uid}/desejos`, d.id));
+        toast('Item removido.'); loadDesejos();
+      });
+
+      card.querySelector('.edit-d').addEventListener('click', () => {
+        document.getElementById('editDesejoId').value = d.id;
+        document.getElementById('desejoName').value = d.name;
+        document.getElementById('desejoCat').value = d.category;
+        document.getElementById('desejoNote').value = d.note || '';
+        document.getElementById('modalDesejoTitle').textContent = 'Editar desejo';
+        openModal('modalDesejo');
+      });
+    });
+  }
+
+  loadDesejos();
+
+  document.getElementById('addDesejoBtn').addEventListener('click', () => {
+    document.getElementById('editDesejoId').value = '';
+    document.getElementById('desejoName').value = '';
+    document.getElementById('desejoNote').value = '';
+    document.getElementById('modalDesejoTitle').textContent = 'Novo desejo';
+    openModal('modalDesejo');
+  });
+
+  document.getElementById('saveDesejoBtn').addEventListener('click', async () => {
+    const name = document.getElementById('desejoName').value.trim();
+    if (!name) return toast('Informe o nome.', 'error');
+    const data = {
+      name,
+      category: document.getElementById('desejoCat').value,
+      note: document.getElementById('desejoNote').value.trim(),
+      updatedAt: serverTimestamp()
+    };
+    const editId = document.getElementById('editDesejoId').value;
+    if (editId) {
+      await updateDoc(doc(db, `users/${uid}/desejos`, editId), data);
+      toast('Item atualizado!', 'success');
+    } else {
+      data.done = false;
+      data.createdAt = serverTimestamp();
+      await addDoc(col(), data);
+      toast('Adicionado à sua lista 💫', 'success');
+    }
+    closeModal('modalDesejo'); loadDesejos();
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const { logout } = await import('./js/auth.js'); logout();
+  });
+</script>
+</body>
+</html>

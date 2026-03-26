@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis — Vícios</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .vicios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+    .vicio-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--transition);
+      position: relative;
+    }
+    .vicio-card:hover { box-shadow: var(--shadow-md); }
+
+    .vicio-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .vicio-card-left { display: flex; align-items: center; gap: 12px; }
+    .vicio-emoji { font-size: 2rem; }
+    .vicio-card-name { font-size: 1rem; font-weight: 600; }
+    .vicio-card-cat { font-size: 0.8125rem; color: var(--text-2); margin-top: 2px; }
+
+    .vicio-actions { display: flex; gap: 4px; }
+
+    .streak-display {
+      text-align: center;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 14px 0;
+    }
+
+    .streak-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--success);
+    }
+    .streak-num.zero { color: var(--text-3); }
+
+    .streak-sub { font-size: 0.8125rem; color: var(--text-2); margin-top: 4px; }
+
+    .vicio-card-footer { display: flex; gap: 8px; }
+
+    .recaida-btn {
+      flex: 1;
+      background: var(--danger-light);
+      color: var(--danger);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .recaida-btn:hover { background: #fad7d4; }
+
+    .recaida-history {
+      margin-top: 10px;
+      font-size: 0.8125rem;
+      color: var(--text-3);
+    }
+
+    .diff-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .diff-leve { background: var(--success-light); color: var(--success); }
+    .diff-moderado { background: var(--warning-light); color: var(--warning); }
+    .diff-severo { background: var(--danger-light); color: var(--danger); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebarMount"></div>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Vícios</span>
+      <span class="topbar-date" id="topbarDate"></span>
+    </header>
+    <div class="page-content">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>Vícios & Restrições</h1>
+          <p>Acompanhe seus dias sem recaída</p>
+        </div>
+        <button class="btn btn-primary" id="addVicioBtn">+ Adicionar vício</button>
+      </div>
+
+      <div class="vicios-grid stagger" id="viciosGrid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">🛡️</div>
+          <p>Nenhum vício cadastrado ainda.<br>Adicione o primeiro para começar seu controle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Adicionar -->
+<div class="modal-overlay" id="modalVicio">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalVicioTitle">Novo vício</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editVicioId">
+      <div class="form-group">
+        <label class="form-label">Nome do vício</label>
+        <input type="text" class="form-input" id="vicioName" placeholder="Ex: Açúcar, Cigarro, Redes sociais...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input type="text" class="form-input" id="vicioEmoji" placeholder="🚫" maxlength="2">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="vicioCategory">
+          <option value="alimentação">Alimentação</option>
+          <option value="comportamento">Comportamento</option>
+          <option value="tecnologia">Tecnologia</option>
+          <option value="substância">Substância</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dificuldade</label>
+        <select class="form-select" id="vicioDiff">
+          <option value="leve">Leve</option>
+          <option value="moderado">Moderado</option>
+          <option value="severo">Severo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data de início (quando parou)</label>
+        <input type="date" class="form-input" id="vicioDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivação (opcional)</label>
+        <textarea class="form-textarea" id="vicioMotivation" placeholder="Por que você quer parar?"></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="saveVicioBtn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getCurrentUser } from './js/auth.js';
+  import { renderSidebar, setActivePage } from './js/sidebar.js';
+  import { setTopbarDate, today, daysBetween, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { db } from './js/firebase-config.js';
+  import {
+    collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  document.getElementById('sidebarMount').innerHTML = renderSidebar();
+  setActivePage(); setTopbarDate(); requireAuth(); bindModalClose();
+
+  const user = await getCurrentUser();
+  if (!user) return;
+  const uid = user.uid;
+  const col = () => collection(db, `users/${uid}/vicios`);
+
+  async function loadVicios() {
+    const grid = document.getElementById('viciosGrid');
+    grid.innerHTML = '';
+    const snap = await getDocs(col());
+    if (snap.empty) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">🛡️</div>
+        <p>Nenhum vício cadastrado ainda.<br>Adicione o primeiro para começar.</p>
+      </div>`;
+      return;
+    }
+    snap.forEach(d => {
+      const v = d.data();
+      const days = daysBetween(v.startDate || today(), today());
+      const diffClass = { leve: 'diff-leve', moderado: 'diff-moderado', severo: 'diff-severo' }[v.difficulty] || 'diff-leve';
+      const recaidas = v.relapses?.length || 0;
+      grid.innerHTML += `
+        <div class="vicio-card fade-in">
+          <div class="vicio-card-header">
+            <div class="vicio-card-left">
+              <div class="vicio-emoji">${v.emoji || '🚫'}</div>
+              <div>
+                <div class="vicio-card-name">${v.name}</div>
+                <div class="vicio-card-cat">${v.category || 'geral'}</div>
+                <span class="diff-badge ${diffClass}">${v.difficulty || 'leve'}</span>
+              </div>
+            </div>
+            <div class="vicio-actions">
+              <button class="btn btn-ghost btn-icon edit-btn" data-id="${d.id}" title="Editar">✏️</button>
+              <button class="btn btn-ghost btn-icon del-btn" data-id="${d.id}" title="Excluir">🗑️</button>
+            </div>
+          </div>
+          <div class="streak-display">
+            <div class="streak-num ${days === 0 ? 'zero' : ''}">${days}</div>
+            <div class="streak-sub">${days === 1 ? 'dia sem recaída' : 'dias sem recaída'}</div>
+          </div>
+          ${v.motivation ? `<div style="font-size:0.85rem;color:var(--text-2);font-style:italic;margin-bottom:10px;">"${v.motivation}"</div>` : ''}
+          <div class="vicio-card-footer">
+            <button class="recaida-btn" data-id="${d.id}" data-name="${v.name}">😔 Tive uma recaída</button>
+          </div>
+          ${recaidas > 0 ? `<div class="recaida-history">Recaídas registradas: ${recaidas}</div>` : ''}
+        </div>`;
+    });
+
+    // Binds
+    document.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Remover este vício?')) return;
+        await deleteDoc(doc(db, `users/${uid}/vicios`, btn.dataset.id));
+        toast('Vício removido.'); loadVicios();
+      });
+    });
+
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const snap2 = await getDocs(col());
+        const d2 = snap2.docs.find(x => x.id === btn.dataset.id);
+        if (!d2) return;
+        const v = d2.data();
+        document.getElementById('editVicioId').value = btn.dataset.id;
+        document.getElementById('vicioName').value = v.name;
+        document.getElementById('vicioEmoji').value = v.emoji || '';
+        document.getElementById('vicioCategory').value = v.category || 'outro';
+        document.getElementById('vicioDiff').value = v.difficulty || 'leve';
+        document.getElementById('vicioDate').value = v.startDate || today();
+        document.getElementById('vicioMotivation').value = v.motivation || '';
+        document.getElementById('modalVicioTitle').textContent = 'Editar vício';
+        openModal('modalVicio');
+      });
+    });
+
+    document.querySelectorAll('.recaida-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm(`Registrar recaída em "${btn.dataset.name}"? O contador será resetado.`)) return;
+        const ref = doc(db, `users/${uid}/vicios`, btn.dataset.id);
+        const snap2 = await getDocs(col());
+        const d2 = snap2.docs.find(x => x.id === btn.dataset.id);
+        const relapses = d2?.data().relapses || [];
+        relapses.push(today());
+        await updateDoc(ref, { startDate: today(), relapses });
+        toast('Recaída registrada. Recomeça do zero 💪', 'default');
+        loadVicios();
+      });
+    });
+  }
+
+  loadVicios();
+
+  document.getElementById('addVicioBtn').addEventListener('click', () => {
+    document.getElementById('editVicioId').value = '';
+    document.getElementById('vicioName').value = '';
+    document.getElementById('vicioEmoji').value = '';
+    document.getElementById('vicioDate').value = today();
+    document.getElementById('vicioMotivation').value = '';
+    document.getElementById('modalVicioTitle').textContent = 'Novo vício';
+    openModal('modalVicio');
+  });
+
+  document.getElementById('saveVicioBtn').addEventListener('click', async () => {
+    const name = document.getElementById('vicioName').value.trim();
+    if (!name) return toast('Informe o nome do vício.', 'error');
+    const data = {
+      name,
+      emoji: document.getElementById('vicioEmoji').value || '🚫',
+      category: document.getElementById('vicioCategory').value,
+      difficulty: document.getElementById('vicioDiff').value,
+      startDate: document.getElementById('vicioDate').value || today(),
+      motivation: document.getElementById('vicioMotivation').value.trim(),
+      updatedAt: serverTimestamp()
+    };
+    const editId = document.getElementById('editVicioId').value;
+    if (editId) {
+      await updateDoc(doc(db, `users/${uid}/vicios`, editId), data);
+      toast('Vício atualizado!', 'success');
+    } else {
+      data.relapses = [];
+      data.createdAt = serverTimestamp();
+      await addDoc(col(), data);
+      toast('Vício adicionado! Você consegue 💪', 'success');
+    }
+    closeModal('modalVicio'); loadVicios();
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const { logout } = await import('./js/auth.js'); logout();
+  });
+</script>
+</body>
+</html>

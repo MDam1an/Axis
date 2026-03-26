@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis — Hábitos</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .habitos-layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+    @media(max-width:900px){ .habitos-layout { grid-template-columns: 1fr; } }
+
+    .habito-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    .habito-item:last-child { border-bottom: none; }
+    .habito-item:hover { opacity: 0.8; }
+
+    .habito-icon-wrap {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      background: var(--surface-2);
+      flex-shrink: 0;
+    }
+
+    .habito-name { font-size: 0.9375rem; font-weight: 500; }
+    .habito-name.done { text-decoration: line-through; color: var(--text-3); }
+    .habito-meta { font-size: 0.8125rem; color: var(--text-2); }
+    .habito-actions { margin-left: auto; display: flex; gap: 4px; }
+
+    .progress-today {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .progress-today .frac {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      min-width: 40px;
+    }
+
+    /* Calendário de consistência */
+    .consistency-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .consistency-day {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: var(--surface-2);
+      font-size: 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3);
+      cursor: default;
+    }
+    .consistency-day.done { background: var(--success); color: transparent; }
+    .consistency-day.partial { background: var(--warning); color: transparent; }
+
+    .cat-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 500; margin-top: 2px;
+    }
+    .cat-saude { background: #e8f5ef; color: #1a8c5b; }
+    .cat-estudo { background: #eef2fd; color: #2d5be3; }
+    .cat-social { background: #fef3c7; color: #d97706; }
+    .cat-financas { background: #f0f0f0; color: #555; }
+    .cat-outro { background: var(--surface-2); color: var(--text-2); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebarMount"></div>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Hábitos</span>
+      <span class="topbar-date" id="topbarDate"></span>
+    </header>
+    <div class="page-content">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>Hábitos diários</h1>
+          <p>Marque os hábitos concluídos hoje</p>
+        </div>
+        <button class="btn btn-primary" id="addHabitoBtn">+ Novo hábito</button>
+      </div>
+
+      <div class="habitos-layout">
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Progresso de hoje</div>
+            <div class="progress-today">
+              <div class="frac" id="habitoFrac">0/0</div>
+              <div style="flex:1">
+                <div class="progress-bar" style="height:8px;">
+                  <div class="progress-fill success" id="habitoProgBar" style="width:0%"></div>
+                </div>
+              </div>
+              <div id="habitoPct" style="font-size:0.875rem;color:var(--text-2);">0%</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Seus hábitos</div>
+            <div id="habitosList">
+              <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <p>Nenhum hábito ainda. Adicione o primeiro!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-title">Consistência — últimas 4 semanas</div>
+            <div id="legendHabito" style="margin-bottom:8px;font-size:0.8rem;color:var(--text-2);">Selecione um hábito para ver</div>
+            <div class="consistency-grid" id="consistencyGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalHabito">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalHabitoTitle">Novo hábito</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editHabitoId">
+      <div class="form-group">
+        <label class="form-label">Nome do hábito</label>
+        <input type="text" class="form-input" id="habitoName" placeholder="Ex: Beber 2L de água, Estudar 30min...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input type="text" class="form-input" id="habitoEmoji" placeholder="💧" maxlength="2">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="habitoCat">
+          <option value="saude">Saúde</option>
+          <option value="estudo">Estudo</option>
+          <option value="social">Social</option>
+          <option value="financas">Finanças</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="saveHabitoBtn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getCurrentUser } from './js/auth.js';
+  import { renderSidebar, setActivePage } from './js/sidebar.js';
+  import { setTopbarDate, today, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { db } from './js/firebase-config.js';
+  import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  document.getElementById('sidebarMount').innerHTML = renderSidebar();
+  setActivePage(); setTopbarDate(); requireAuth(); bindModalClose();
+
+  const user = await getCurrentUser();
+  if (!user) return;
+  const uid = user.uid;
+  const col = () => collection(db, `users/${uid}/habitos`);
+  const todayStr = today();
+
+  async function loadHabitos() {
+    const snap = await getDocs(col());
+    const list = document.getElementById('habitosList');
+    list.innerHTML = '';
+
+    if (snap.empty) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum hábito ainda. Adicione o primeiro!</p></div>`;
+      updateProgress(0, 0); return;
+    }
+
+    let done = 0, total = 0;
+    const catMap = { saude:'cat-saude', estudo:'cat-estudo', social:'cat-social', financas:'cat-financas', outro:'cat-outro' };
+
+    snap.forEach(d => {
+      const h = d.data();
+      const isDone = (h.completedDates || []).includes(todayStr);
+      if (isDone) done++;
+      total++;
+      const catClass = catMap[h.category] || 'cat-outro';
+      const row = document.createElement('div');
+      row.className = 'habito-item';
+      row.innerHTML = `
+        <div class="custom-checkbox ${isDone ? 'checked' : ''}" data-id="${d.id}">
+          ${isDone ? '✓' : ''}
+        </div>
+        <div class="habito-icon-wrap">${h.emoji || '✅'}</div>
+        <div style="flex:1">
+          <div class="habito-name ${isDone ? 'done' : ''}">${h.name}</div>
+          <span class="cat-badge ${catClass}">${h.category || 'outro'}</span>
+        </div>
+        <div class="habito-actions">
+          <button class="btn btn-ghost btn-icon show-consistency" data-id="${d.id}" data-name="${h.name}" data-dates='${JSON.stringify(h.completedDates||[])}' title="Ver consistência">📊</button>
+          <button class="btn btn-ghost btn-icon edit-h" data-id="${d.id}" title="Editar">✏️</button>
+          <button class="btn btn-ghost btn-icon del-h" data-id="${d.id}" title="Excluir">🗑️</button>
+        </div>`;
+      list.appendChild(row);
+
+      // Toggle check
+      row.querySelector('.custom-checkbox').addEventListener('click', async (e) => {
+        const ref = doc(db, `users/${uid}/habitos`, d.id);
+        const dates = h.completedDates || [];
+        if (dates.includes(todayStr)) {
+          await updateDoc(ref, { completedDates: dates.filter(x => x !== todayStr) });
+        } else {
+          await updateDoc(ref, { completedDates: arrayUnion(todayStr) });
+          toast(`"${h.name}" concluído hoje! 🎉`, 'success');
+        }
+        loadHabitos();
+      });
+    });
+
+    updateProgress(done, total);
+
+    document.querySelectorAll('.del-h').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Remover este hábito?')) return;
+        await deleteDoc(doc(db, `users/${uid}/habitos`, btn.dataset.id));
+        toast('Hábito removido.'); loadHabitos();
+      });
+    });
+
+    document.querySelectorAll('.edit-h').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const d2 = snap.docs.find(x => x.id === btn.dataset.id);
+        if (!d2) return;
+        const h2 = d2.data();
+        document.getElementById('editHabitoId').value = btn.dataset.id;
+        document.getElementById('habitoName').value = h2.name;
+        document.getElementById('habitoEmoji').value = h2.emoji || '';
+        document.getElementById('habitoCat').value = h2.category || 'outro';
+        document.getElementById('modalHabitoTitle').textContent = 'Editar hábito';
+        openModal('modalHabito');
+      });
+    });
+
+    document.querySelectorAll('.show-consistency').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dates = JSON.parse(btn.dataset.dates || '[]');
+        document.getElementById('legendHabito').textContent = btn.dataset.name;
+        renderConsistency(dates);
+      });
+    });
+  }
+
+  function updateProgress(done, total) {
+    const pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById('habitoFrac').textContent = `${done}/${total}`;
+    document.getElementById('habitoProgBar').style.width = pct + '%';
+    document.getElementById('habitoPct').textContent = pct + '%';
+  }
+
+  function renderConsistency(completedDates) {
+    const grid = document.getElementById('consistencyGrid');
+    grid.innerHTML = '';
+    const today = new Date();
+    for (let i = 27; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const div = document.createElement('div');
+      div.className = `consistency-day ${completedDates.includes(str) ? 'done' : ''}`;
+      div.title = str;
+      grid.appendChild(div);
+    }
+  }
+
+  loadHabitos();
+
+  document.getElementById('addHabitoBtn').addEventListener('click', () => {
+    document.getElementById('editHabitoId').value = '';
+    document.getElementById('habitoName').value = '';
+    document.getElementById('habitoEmoji').value = '';
+    document.getElementById('modalHabitoTitle').textContent = 'Novo hábito';
+    openModal('modalHabito');
+  });
+
+  document.getElementById('saveHabitoBtn').addEventListener('click', async () => {
+    const name = document.getElementById('habitoName').value.trim();
+    if (!name) return toast('Informe o nome do hábito.', 'error');
+    const data = {
+      name,
+      emoji: document.getElementById('habitoEmoji').value || '✅',
+      category: document.getElementById('habitoCat').value,
+      updatedAt: serverTimestamp()
+    };
+    const editId = document.getElementById('editHabitoId').value;
+    if (editId) {
+      await updateDoc(doc(db, `users/${uid}/habitos`, editId), data);
+      toast('Hábito atualizado!', 'success');
+    } else {
+      data.completedDates = [];
+      data.createdAt = serverTimestamp();
+      await addDoc(col(), data);
+      toast('Hábito criado!', 'success');
+    }
+    closeModal('modalHabito'); loadHabitos();
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const { logout } = await import('./js/auth.js'); logout();
+  });
+</script>
+</body>
+</html>

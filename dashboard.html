@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis — Dashboard</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .welcome-heading { font-size: 2rem; margin-bottom: 4px; }
+    .welcome-sub { color: var(--text-2); font-size: 0.9375rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+    @media(max-width:900px){ .stats-row { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:600px){ .stats-row { grid-template-columns: 1fr 1fr; } }
+
+    .quick-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:700px){ .quick-section { grid-template-columns: 1fr; } }
+
+    .section-heading {
+      font-size: 1.1rem;
+      font-family: 'DM Serif Display', serif;
+      margin-bottom: 14px;
+    }
+
+    .vicio-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .vicio-row:last-child { border-bottom: none; }
+    .vicio-icon { font-size: 1.4rem; }
+    .vicio-info { flex: 1; }
+    .vicio-name { font-size: 0.9rem; font-weight: 500; }
+    .vicio-days { font-size: 0.8125rem; color: var(--text-2); }
+    .vicio-streak {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--success);
+    }
+
+    .habit-today-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .habit-today-row:last-child { border-bottom: none; }
+
+    .meta-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-item:last-child { border-bottom: none; }
+    .meta-name { font-size: 0.9375rem; font-weight: 500; margin-bottom: 8px; }
+    .meta-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .meta-pct { font-size: 0.8125rem; color: var(--text-2); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <header class="topbar">
+        <span class="topbar-title">Dashboard</span>
+        <span class="topbar-date" id="topbarDate"></span>
+      </header>
+      <div class="page-content">
+        <div class="page-header">
+          <h1 class="welcome-heading" id="welcomeMsg">Olá 👋</h1>
+          <p class="welcome-sub">Aqui está um resumo do seu dia</p>
+        </div>
+
+        <div class="stats-row stagger" id="statsRow">
+          <div class="card card-sm">
+            <div class="card-title">Hábitos hoje</div>
+            <div class="stat-value" id="statHabitos">—</div>
+            <div class="stat-label">concluídos</div>
+          </div>
+          <div class="card card-sm">
+            <div class="card-title">Melhor streak</div>
+            <div class="stat-value" id="statStreak">—</div>
+            <div class="stat-label">dias seguidos</div>
+          </div>
+          <div class="card card-sm">
+            <div class="card-title">Metas ativas</div>
+            <div class="stat-value" id="statMetas">—</div>
+            <div class="stat-label">em andamento</div>
+          </div>
+          <div class="card card-sm">
+            <div class="card-title">Saldo do mês</div>
+            <div class="stat-value" id="statSaldo">—</div>
+            <div class="stat-label">R$</div>
+          </div>
+        </div>
+
+        <div class="quick-section">
+          <!-- Vícios -->
+          <div class="card">
+            <div class="section-heading">Vícios em controle</div>
+            <div id="viciosList">
+              <div class="empty-state">
+                <div class="empty-icon">🛡️</div>
+                <p>Nenhum vício cadastrado ainda.<br><a href="vicios.html" style="color:var(--accent)">Adicionar agora →</a></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hábitos de hoje -->
+          <div class="card">
+            <div class="section-heading">Hábitos de hoje</div>
+            <div id="habitosList">
+              <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <p>Nenhum hábito cadastrado ainda.<br><a href="habitos.html" style="color:var(--accent)">Adicionar agora →</a></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metas em progresso -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div class="section-heading" style="margin:0">Metas em andamento</div>
+              <a href="metas.html" class="btn btn-ghost btn-sm">Ver todas →</a>
+            </div>
+            <div id="metasList">
+              <div class="empty-state">
+                <div class="empty-icon">🎯</div>
+                <p>Nenhuma meta cadastrada ainda.<br><a href="metas.html" style="color:var(--accent)">Adicionar agora →</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireAuth, getCurrentUser } from './js/auth.js';
+    import { logout } from './js/auth.js';
+    import { renderSidebar, setActivePage } from './js/sidebar.js';
+    import { setTopbarDate, today, daysBetween } from './js/utils.js';
+    import { db } from './js/firebase-config.js';
+    import { collection, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    document.getElementById('sidebarMount').innerHTML = renderSidebar();
+    setActivePage();
+    setTopbarDate();
+    requireAuth();
+
+    const user = await getCurrentUser();
+    if (user) {
+      document.getElementById('welcomeMsg').textContent = `Olá, ${user.displayName?.split(' ')[0] || 'você'} 👋`;
+
+      const uid = user.uid;
+
+      // Vícios
+      try {
+        const snap = await getDocs(collection(db, `users/${uid}/vicios`));
+        if (!snap.empty) {
+          const rows = [];
+          snap.forEach(d => {
+            const v = d.data();
+            const start = v.startDate || today();
+            const days = daysBetween(start, today());
+            rows.push(`
+              <div class="vicio-row">
+                <div class="vicio-icon">${v.emoji || '🚫'}</div>
+                <div class="vicio-info">
+                  <div class="vicio-name">${v.name}</div>
+                  <div class="vicio-days">${days === 0 ? 'Começou hoje' : `${days} dias`}</div>
+                </div>
+                <div class="vicio-streak">${days}d</div>
+              </div>`);
+          });
+          document.getElementById('viciosList').innerHTML = rows.join('');
+
+          const maxStreak = Math.max(...snap.docs.map(d => daysBetween(d.data().startDate || today(), today())));
+          document.getElementById('statStreak').textContent = maxStreak;
+        }
+      } catch(e) { console.warn('vicios', e); }
+
+      // Hábitos hoje
+      try {
+        const todayStr = today();
+        const snap = await getDocs(collection(db, `users/${uid}/habitos`));
+        let done = 0, total = 0;
+        if (!snap.empty) {
+          const rows = [];
+          snap.forEach(d => {
+            const h = d.data();
+            const isDone = h.completedDates?.includes(todayStr);
+            total++;
+            if (isDone) done++;
+            rows.push(`
+              <div class="habit-today-row">
+                <div class="custom-checkbox ${isDone ? 'checked' : ''}">
+                  ${isDone ? '✓' : ''}
+                </div>
+                <span class="${isDone ? 'text done' : 'text'}">${h.name}</span>
+              </div>`);
+          });
+          document.getElementById('habitosList').innerHTML = rows.join('');
+          document.getElementById('statHabitos').textContent = `${done}/${total}`;
+        }
+      } catch(e) { console.warn('habitos', e); }
+
+      // Metas
+      try {
+        const snap = await getDocs(collection(db, `users/${uid}/metas`));
+        let ativas = 0;
+        if (!snap.empty) {
+          const rows = [];
+          snap.forEach(d => {
+            const m = d.data();
+            if (m.status === 'concluida') return;
+            ativas++;
+            const pct = Math.min(100, Math.round((m.progress || 0)));
+            rows.push(`
+              <div class="meta-item">
+                <div class="meta-name">${m.name}</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                <div class="meta-footer">
+                  <span class="badge ${pct >= 100 ? 'badge-success' : 'badge-neutral'}">${m.category || 'Geral'}</span>
+                  <span class="meta-pct">${pct}%</span>
+                </div>
+              </div>`);
+          });
+          if (rows.length) document.getElementById('metasList').innerHTML = rows.join('');
+          document.getElementById('statMetas').textContent = ativas;
+        }
+      } catch(e) { console.warn('metas', e); }
+
+      // Finanças
+      try {
+        const snap = await getDocs(collection(db, `users/${uid}/transacoes`));
+        let saldo = 0;
+        const mesAtual = today().slice(0,7);
+        snap.forEach(d => {
+          const t = d.data();
+          if (t.date?.startsWith(mesAtual)) {
+            saldo += t.type === 'entrada' ? t.amount : -t.amount;
+          }
+        });
+        document.getElementById('statSaldo').textContent = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      } catch(e) { console.warn('financas', e); }
+
+      // Logout
+      document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        const { logout } = await import('./js/auth.js');
+        logout();
+      });
+    }
+  </script>
+</body>
+</html>

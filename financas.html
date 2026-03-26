@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis — Finanças</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .financas-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+    @media(max-width:900px){ .financas-layout { grid-template-columns: 1fr; } }
+
+    .saldo-card {
+      background: var(--text); color: #fff;
+      border-radius: var(--radius); padding: 28px;
+      margin-bottom: 16px;
+    }
+    .saldo-label { font-size: 0.875rem; opacity: 0.6; margin-bottom: 6px; }
+    .saldo-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem; line-height: 1;
+    }
+    .saldo-value.negativo { color: #ff8a7a; }
+
+    .trans-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .trans-row:last-child { border-bottom: none; }
+
+    .trans-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .trans-icon.entrada { background: var(--success-light); }
+    .trans-icon.saida { background: var(--danger-light); }
+
+    .trans-info { flex: 1; }
+    .trans-desc { font-size: 0.9rem; font-weight: 500; }
+    .trans-cat { font-size: 0.8125rem; color: var(--text-2); }
+    .trans-date { font-size: 0.75rem; color: var(--text-3); }
+
+    .trans-value { font-weight: 600; font-size: 0.9375rem; }
+    .trans-value.entrada { color: var(--success); }
+    .trans-value.saida { color: var(--danger); }
+
+    .resumo-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .resumo-item:last-child { border-bottom: none; }
+    .resumo-cat { font-size: 0.875rem; color: var(--text-2); }
+    .resumo-val { font-size: 0.9rem; font-weight: 500; }
+
+    .mes-selector { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .mes-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 0.875rem; }
+    .mes-label { font-weight: 500; font-size: 0.9375rem; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebarMount"></div>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Finanças</span>
+      <span class="topbar-date" id="topbarDate"></span>
+    </header>
+    <div class="page-content">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>Finanças Pessoais</h1>
+          <p>Controle suas entradas e saídas</p>
+        </div>
+        <button class="btn btn-primary" id="addTransBtn">+ Nova transação</button>
+      </div>
+
+      <div class="financas-layout">
+        <div>
+          <!-- Saldo -->
+          <div class="saldo-card">
+            <div class="saldo-label">Saldo do mês</div>
+            <div class="saldo-value" id="saldoValue">R$ 0,00</div>
+            <div style="display:flex;gap:24px;margin-top:16px;">
+              <div>
+                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:2px;">Entradas</div>
+                <div style="font-size:1rem;font-weight:600;color:#7affb2;" id="totalEntradas">R$ 0</div>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;opacity:0.6;margin-bottom:2px;">Saídas</div>
+                <div style="font-size:1rem;font-weight:600;color:#ff8a7a;" id="totalSaidas">R$ 0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mês selector -->
+          <div class="mes-selector">
+            <button class="mes-btn" id="prevMes">‹</button>
+            <span class="mes-label" id="mesLabel">—</span>
+            <button class="mes-btn" id="nextMes">›</button>
+          </div>
+
+          <!-- Transações -->
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div class="card-title" style="margin:0;">Transações</div>
+              <select class="form-select" id="filterTipo" style="width:auto;padding:5px 10px;font-size:0.875rem;">
+                <option value="todos">Todas</option>
+                <option value="entrada">Entradas</option>
+                <option value="saida">Saídas</option>
+              </select>
+            </div>
+            <div id="transList">
+              <div class="empty-state">
+                <div class="empty-icon">💰</div>
+                <p>Nenhuma transação ainda.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo por categoria -->
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Por categoria</div>
+            <div id="catResumo">
+              <div style="color:var(--text-3);font-size:0.875rem;">Sem dados ainda.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Meta de economia</div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label class="form-label">Meta mensal (R$)</label>
+              <input type="number" class="form-input" id="metaEconomia" placeholder="0" min="0">
+            </div>
+            <div class="progress-bar" style="margin-bottom:6px;">
+              <div class="progress-fill success" id="metaProg" style="width:0%"></div>
+            </div>
+            <div style="font-size:0.8125rem;color:var(--text-2);" id="metaProgLabel">0% da meta</div>
+            <button class="btn btn-outline btn-sm" style="margin-top:10px;" id="saveMeta">Salvar meta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalTrans">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova transação</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" id="tipoEntradaBtn" style="flex:1;justify-content:center;" data-tipo="entrada">✅ Entrada</button>
+          <button class="btn btn-outline" id="tipoSaidaBtn" style="flex:1;justify-content:center;" data-tipo="saida">💸 Saída</button>
+        </div>
+        <input type="hidden" id="transType" value="saida">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <input type="text" class="form-input" id="transDesc" placeholder="Ex: Salário, Almoço, Netflix...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor (R$)</label>
+        <input type="number" class="form-input" id="transAmount" placeholder="0,00" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="transCat">
+          <option value="Alimentação">Alimentação</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Educação">Educação</option>
+          <option value="Assinaturas">Assinaturas</option>
+          <option value="Renda">Renda</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" class="form-input" id="transDate">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="saveTransBtn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getCurrentUser } from './js/auth.js';
+  import { renderSidebar, setActivePage } from './js/sidebar.js';
+  import { setTopbarDate, today, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { db } from './js/firebase-config.js';
+  import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  document.getElementById('sidebarMount').innerHTML = renderSidebar();
+  setActivePage(); setTopbarDate(); requireAuth(); bindModalClose();
+
+  const user = await getCurrentUser();
+  if (!user) return;
+  const uid = user.uid;
+  const col = () => collection(db, `users/${uid}/transacoes`);
+
+  const now = new Date();
+  let viewYear = now.getFullYear(), viewMonth = now.getMonth();
+
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  function mesStr() { return `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`; }
+
+  function fmt(v) { return v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
+
+  async function loadTransacoes() {
+    document.getElementById('mesLabel').textContent = `${meses[viewMonth]} ${viewYear}`;
+    const snap = await getDocs(col());
+    const ms = mesStr();
+    let items = [];
+    snap.forEach(d => {
+      const t = { id: d.id, ...d.data() };
+      if (t.date?.startsWith(ms)) items.push(t);
+    });
+
+    const filterTipo = document.getElementById('filterTipo').value;
+    const filtered = filterTipo === 'todos' ? items : items.filter(t => t.type === filterTipo);
+
+    // Saldo
+    let entradas = 0, saidas = 0;
+    items.forEach(t => { if (t.type === 'entrada') entradas += t.amount; else saidas += t.amount; });
+    const saldo = entradas - saidas;
+    const saldoEl = document.getElementById('saldoValue');
+    saldoEl.textContent = fmt(saldo);
+    saldoEl.className = `saldo-value ${saldo < 0 ? 'negativo' : ''}`;
+    document.getElementById('totalEntradas').textContent = fmt(entradas);
+    document.getElementById('totalSaidas').textContent = fmt(saidas);
+
+    // Meta
+    try {
+      const metaDoc = await getDoc(doc(db, `users/${uid}/config`, 'financas'));
+      const metaVal = metaDoc.exists() ? (metaDoc.data().metaEconomia || 0) : 0;
+      document.getElementById('metaEconomia').value = metaVal || '';
+      if (metaVal > 0) {
+        const pct = Math.min(100, Math.round(saldo / metaVal * 100));
+        document.getElementById('metaProg').style.width = Math.max(0, pct) + '%';
+        document.getElementById('metaProgLabel').textContent = `${Math.max(0,pct)}% da meta (${fmt(metaVal)})`;
+      }
+    } catch(e){}
+
+    // Lista
+    const list = document.getElementById('transList');
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><p>Nenhuma transação neste período.</p></div>`;
+    } else {
+      filtered.sort((a,b) => b.date?.localeCompare(a.date));
+      list.innerHTML = filtered.map(t => `
+        <div class="trans-row">
+          <div class="trans-icon ${t.type}">${t.type === 'entrada' ? '⬆️' : '⬇️'}</div>
+          <div class="trans-info">
+            <div class="trans-desc">${t.description}</div>
+            <div class="trans-cat">${t.category || 'Outro'}</div>
+            <div class="trans-date">${t.date ? new Date(t.date + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="trans-value ${t.type}">${t.type === 'entrada' ? '+' : '-'}${fmt(t.amount)}</div>
+            <button class="btn btn-ghost btn-icon del-t" data-id="${t.id}" title="Excluir">🗑️</button>
+          </div>
+        </div>`).join('');
+
+      list.querySelectorAll('.del-t').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Remover esta transação?')) return;
+          await deleteDoc(doc(db, `users/${uid}/transacoes`, btn.dataset.id));
+          toast('Removido.'); loadTransacoes();
+        });
+      });
+    }
+
+    // Resumo por categoria (saídas)
+    const catMap = {};
+    items.filter(t => t.type === 'saida').forEach(t => {
+      catMap[t.category] = (catMap[t.category] || 0) + t.amount;
+    });
+    const resumo = document.getElementById('catResumo');
+    const cats = Object.entries(catMap).sort((a,b) => b[1]-a[1]);
+    resumo.innerHTML = cats.length === 0
+      ? `<div style="color:var(--text-3);font-size:0.875rem;">Sem saídas neste mês.</div>`
+      : cats.map(([cat, val]) => `
+        <div class="resumo-item">
+          <span class="resumo-cat">${cat}</span>
+          <span class="resumo-val">${fmt(val)}</span>
+        </div>`).join('');
+  }
+
+  loadTransacoes();
+
+  document.getElementById('prevMes').addEventListener('click', () => {
+    viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } loadTransacoes();
+  });
+  document.getElementById('nextMes').addEventListener('click', () => {
+    viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } loadTransacoes();
+  });
+  document.getElementById('filterTipo').addEventListener('change', loadTransacoes);
+
+  // Tipo buttons
+  let selectedType = 'saida';
+  function updateTipoBtns() {
+    document.getElementById('tipoEntradaBtn').classList.toggle('btn-primary', selectedType === 'entrada');
+    document.getElementById('tipoEntradaBtn').classList.toggle('btn-outline', selectedType !== 'entrada');
+    document.getElementById('tipoSaidaBtn').classList.toggle('btn-primary', selectedType === 'saida');
+    document.getElementById('tipoSaidaBtn').classList.toggle('btn-outline', selectedType !== 'saida');
+    document.getElementById('transType').value = selectedType;
+  }
+  document.getElementById('tipoEntradaBtn').addEventListener('click', () => { selectedType = 'entrada'; updateTipoBtns(); });
+  document.getElementById('tipoSaidaBtn').addEventListener('click', () => { selectedType = 'saida'; updateTipoBtns(); });
+  updateTipoBtns();
+
+  document.getElementById('addTransBtn').addEventListener('click', () => {
+    document.getElementById('transDesc').value = '';
+    document.getElementById('transAmount').value = '';
+    document.getElementById('transDate').value = today();
+    selectedType = 'saida'; updateTipoBtns();
+    openModal('modalTrans');
+  });
+
+  document.getElementById('saveTransBtn').addEventListener('click', async () => {
+    const desc = document.getElementById('transDesc').value.trim();
+    const amount = parseFloat(document.getElementById('transAmount').value);
+    if (!desc || isNaN(amount) || amount <= 0) return toast('Preencha todos os campos corretamente.', 'error');
+    await addDoc(col(), {
+      description: desc,
+      amount,
+      type: selectedType,
+      category: document.getElementById('transCat').value,
+      date: document.getElementById('transDate').value || today(),
+      createdAt: serverTimestamp()
+    });
+    toast(`${selectedType === 'entrada' ? 'Entrada' : 'Saída'} registrada!`, 'success');
+    closeModal('modalTrans'); loadTransacoes();
+  });
+
+  document.getElementById('saveMeta').addEventListener('click', async () => {
+    const val = parseFloat(document.getElementById('metaEconomia').value);
+    if (isNaN(val)) return;
+    await setDoc(doc(db, `users/${uid}/config`, 'financas'), { metaEconomia: val });
+    toast('Meta salva!', 'success'); loadTransacoes();
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const { logout } = await import('./js/auth.js'); logout();
+  });
+</script>
+</body>
+</html>
