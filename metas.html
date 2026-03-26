@@ -131,13 +131,12 @@
 
 <script type="module">
   import { requireAuth, getCurrentUser } from './js/auth.js';
-  import { renderSidebar, setActivePage } from './js/sidebar.js';
+  import { initSidebar } from './js/sidebar.js';
   import { setTopbarDate, today, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
   import { db } from './js/firebase-config.js';
   import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  document.getElementById('sidebarMount').innerHTML = renderSidebar();
-  setActivePage(); setTopbarDate(); requireAuth(); bindModalClose();
+  initSidebar(); setTopbarDate(); requireAuth(); bindModalClose();
 
   const user = await getCurrentUser();
   if (!user) return;
