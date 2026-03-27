@@ -3,61 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Axis — Nós dois</title>
+  <title>Axis — Grupo</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .partner-connect {
-      background: var(--accent-light); border: 1.5px solid var(--accent);
-      border-radius: var(--radius); padding: 24px; margin-bottom: 24px;
-    }
-    .partner-id-box {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 12px 16px;
-      font-family: monospace; font-size: 0.875rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-
-    .nos-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width:900px){ .nos-layout { grid-template-columns: 1fr; } }
-
-    .compare-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .compare-person {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-    }
-    .person-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .person-avatar {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: var(--accent-light); color: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 1.1rem;
-    }
-    .person-name { font-weight: 600; font-size: 1.1rem; }
-
-    .challenge-card, .feed-item {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px;
-      margin-bottom: 12px;
-    }
-    .connected-list {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
-    }
-    .partner-tag {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--success-light); color: var(--success);
-      padding: 6px 14px; border-radius: 9999px; font-size: 0.9rem;
-    }
-    .mobile-hamburger {
-      display: none; font-size: 1.8rem; background: none; border: none;
-      color: var(--text-2); cursor: pointer; padding: 8px;
-    }
-    @media (max-width: 900px) { .mobile-hamburger { display: block; } }
+    .my-id-box { background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-family:monospace;font-size:.875rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;word-break:break-all;gap:10px; }
+    .member-list { display:flex;flex-direction:column;gap:10px;margin-bottom:18px; }
+    .member-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow); }
+    .member-header { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+    .member-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;flex-shrink:0; }
+    .member-name { font-weight:600;font-size:.9375rem; }
+    .member-you { font-size:.75rem;color:var(--accent);font-weight:500; }
+    .member-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+    .mstat { background:var(--surface-2);border-radius:var(--radius-sm);padding:8px 10px;text-align:center; }
+    .mstat-val { font-family:'DM Serif Display',serif;font-size:1.35rem;line-height:1; }
+    .mstat-label { font-size:.7rem;color:var(--text-2);margin-top:2px; }
+    .remove-member { background:none;border:none;cursor:pointer;color:var(--text-3);font-size:.8rem;padding:2px 6px;border-radius:4px;transition:all var(--transition); }
+    .remove-member:hover { background:var(--danger-light);color:var(--danger); }
+    .add-friend-form { display:flex;gap:8px;flex-wrap:wrap; }
+    .add-friend-form input { flex:1;min-width:180px; }
+    .challenge-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:10px; }
+    .challenge-name { font-weight:600;font-size:.9rem;margin-bottom:8px; }
+    .ch-row { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+    .ch-label { font-size:.75rem;color:var(--text-2);width:60px;flex-shrink:0; }
+    .feed-item { display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+    .feed-item:last-child { border-bottom:none; }
+    .nos-layout { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    @media(max-width:800px){ .nos-layout{grid-template-columns:1fr;} }
+    .colors { display:none }
+    /* Cores dos membros */
+    .mc-0{background:#eef2fd;color:#2d5be3}
+    .mc-1{background:#fef3c7;color:#d97706}
+    .mc-2{background:#e8f5ef;color:#1a8c5b}
+    .mc-3{background:#fdecea;color:#c0392b}
+    .mc-4{background:#f0effe;color:#7c3aed}
+    .mc-5{background:#fff7ed;color:#ea580c}
   </style>
 </head>
 <body>
@@ -65,311 +44,303 @@
   <div id="sidebarMount"></div>
   <div class="main">
     <header class="topbar">
-      <button id="mobileHamburger" class="mobile-hamburger">☰</button>
-      <span class="topbar-title">Nós dois</span>
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <span class="topbar-title" id="topbarTitle">Grupo</span>
+      </div>
       <span class="topbar-date" id="topbarDate"></span>
     </header>
-
     <div class="page-content">
       <div class="page-header">
-        <h1>Nós dois</h1>
-        <p>Conecte-se com amigos e acompanhe o progresso juntos</p>
+        <h1>Nosso Grupo</h1>
+        <p style="color:var(--text-2);font-size:.9375rem;">Compare progresso e criem desafios juntos</p>
       </div>
 
-      <div id="partnerSection">
-        <!-- Seção de conexão -->
-        <div class="partner-connect" id="connectSection">
-          <h3>🔗 Conectar com amigos</h3>
-          <p>Compartilhe seu ID ou cole o ID de um amigo para conectar.</p>
-
-          <div class="card-title">Seu ID pessoal</div>
-          <div class="partner-id-box">
-            <span id="myUid">Carregando...</span>
-            <button class="btn btn-ghost btn-sm" id="copyIdBtn">Copiar</button>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">ID do amigo</label>
-            <div style="display:flex;gap:8px;">
-              <input type="text" class="form-input" id="partnerIdInput" placeholder="Cole o ID aqui">
-              <button class="btn btn-accent" id="connectBtn">Conectar</button>
-            </div>
-          </div>
+      <!-- Seu ID -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Seu ID para compartilhar</div>
+        <div class="my-id-box">
+          <span id="myUidDisplay" style="flex:1">Carregando...</span>
+          <button class="btn btn-ghost btn-sm" id="copyIdBtn" style="flex-shrink:0">📋 Copiar</button>
         </div>
+        <p style="font-size:.8375rem;color:var(--text-2)">Compartilhe este ID com seus amigos para se conectarem.</p>
+      </div>
 
-        <!-- View conectada (múltiplos amigos) -->
-        <div id="connectedView" style="display:none;">
-          <div style="margin-bottom:20px;">
-            <h3 style="margin-bottom:8px;">Amigos conectados</h3>
-            <div class="connected-list" id="partnersList"></div>
+      <!-- Adicionar amigo -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Adicionar amigo ao grupo</div>
+        <div class="add-friend-form">
+          <input type="text" class="form-input" id="friendIdInput" placeholder="Cole o ID do seu amigo aqui">
+          <button class="btn btn-accent" id="addFriendBtn">Conectar</button>
+        </div>
+      </div>
+
+      <!-- Membros do grupo -->
+      <div style="margin-bottom:20px">
+        <div class="section-heading">Membros do grupo</div>
+        <div class="member-list" id="memberList">
+          <div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum amigo conectado ainda.</p></div>
+        </div>
+      </div>
+
+      <!-- Desafios + Feed -->
+      <div class="nos-layout">
+        <div class="card" id="challengesCard">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="card-title" style="margin:0">Desafios do grupo</div>
+            <button class="btn btn-outline btn-sm" id="addChallengeBtn">+ Novo</button>
           </div>
-
-          <div class="compare-grid" id="compareGrid"></div>
-
-          <div class="nos-layout">
-            <div>
-              <div class="card">
-                <div class="card-title">Desafios compartilhados</div>
-                <div id="challengesList">
-                  <div class="empty-state">
-                    <div class="empty-icon">🏆</div>
-                    <p>Nenhum desafio ainda.</p>
-                  </div>
-                </div>
-                <button class="btn btn-outline btn-sm" style="margin-top:14px;" id="addChallengeBtn">+ Novo desafio</button>
-              </div>
-            </div>
-            <div>
-              <div class="card">
-                <div class="card-title">Feed de conquistas</div>
-                <div id="achieveFeed">
-                  <div class="empty-state">
-                    <div class="empty-icon">🎉</div>
-                    <p>Nenhuma conquista registrada ainda.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div id="challengesList"><div class="empty-state"><div class="empty-icon">🏆</div><p>Nenhum desafio ainda.</p></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Feed de conquistas</div>
+          <div id="achieveFeed"><div class="empty-state"><div class="empty-icon">🎉</div><p>Nenhuma conquista registrada ainda.</p></div></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal Novo Desafio -->
+<!-- Modal desafio -->
 <div class="modal-overlay" id="modalChallenge">
   <div class="modal">
-    <div class="modal-header">
-      <h2>Novo desafio</h2>
-      <button class="modal-close">✕</button>
-    </div>
+    <div class="modal-header"><h2>Novo desafio</h2><button class="modal-close">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Nome do desafio</label>
-        <input type="text" class="form-input" id="challengeName" placeholder="Ex: 30 dias sem açúcar...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Duração (dias)</label>
-        <input type="number" class="form-input" id="challengeDays" placeholder="30" min="1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data de início</label>
-        <input type="date" class="form-input" id="challengeStart">
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="saveChallengeBtn">Criar desafio</button>
+      <div class="form-group"><label class="form-label">Nome do desafio</label><input class="form-input" id="challengeName" placeholder="Ex: 30 dias sem açúcar, Academia 3x/semana..."></div>
+      <div class="form-group"><label class="form-label">Duração (dias)</label><input type="number" class="form-input" id="challengeDays" placeholder="30" min="1"></div>
+      <div class="form-group"><label class="form-label">Data de início</label><input type="date" class="form-input" id="challengeStart"></div>
+      <button class="btn btn-primary btn-full" id="saveChallengeBtn">Criar desafio</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { requireAuth, getCurrentUser } from './js/auth.js';
-  import { initSidebar } from './js/sidebar.js';
-  import { setTopbarDate, today, toast, openModal, closeModal, bindModalClose, daysBetween } from './js/utils.js';
+  import { initPage } from './js/page-shell.js';
+  import { getCurrentUser } from './js/auth.js';
+  import { today, daysBetween, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
   import { db } from './js/firebase-config.js';
   import {
     doc, getDoc, updateDoc, arrayUnion, arrayRemove,
-    collection, getDocs, addDoc, serverTimestamp
+    collection, addDoc, getDocs, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // Inicialização
-  initSidebar();
-  setTopbarDate();
-  requireAuth();
+  initPage('Grupo');
   bindModalClose();
 
   const user = await getCurrentUser();
   if (!user) return;
   const uid = user.uid;
+  const todayStr = today();
 
-  document.getElementById('myUid').textContent = uid;
-
-  // Copiar ID
+  // Mostra o UID do usuário
+  document.getElementById('myUidDisplay').textContent = uid;
   document.getElementById('copyIdBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText(uid);
-    toast('ID copiado para a área de transferência!', 'success');
+    navigator.clipboard.writeText(uid).then(() => toast('ID copiado!', 'success'));
   });
 
-  // Carregar amigos conectados
-  async function loadPartners() {
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    const data = userDoc.data() || {};
-    const partners = data.partners || [];
+  // Carrega dados do user
+  async function getUserData(id) {
+    try {
+      const snap = await getDoc(doc(db, 'users', id));
+      return snap.exists() ? { id, ...snap.data() } : null;
+    } catch(e) { return null; }
+  }
 
-    const connectSection = document.getElementById('connectSection');
-    const connectedView = document.getElementById('connectedView');
-    const partnersList = document.getElementById('partnersList');
+  async function getStats(id) {
+    const todayStr2 = today();
+    let streak = 0, habDone = 0, habTotal = 0, metas = 0;
+    try {
+      const vSnap = await getDocs(collection(db, `users/${id}/vicios`));
+      vSnap.forEach(d => {
+        const days = daysBetween(d.data().startDate||todayStr2, todayStr2);
+        if (days > streak) streak = days;
+      });
+    } catch(e){}
+    try {
+      const hSnap = await getDocs(collection(db, `users/${id}/habitos`));
+      hSnap.forEach(d => {
+        habTotal++;
+        if ((d.data().completedDates||[]).includes(todayStr2)) habDone++;
+      });
+    } catch(e){}
+    try {
+      const mSnap = await getDocs(collection(db, `users/${id}/metas`));
+      mSnap.forEach(d => { if (d.data().status==='andamento') metas++; });
+    } catch(e){}
+    return { streak, habDone, habTotal, metas };
+  }
 
-    if (partners.length === 0) {
-      connectSection.style.display = 'block';
-      connectedView.style.display = 'none';
+  const memberColors = ['mc-0','mc-1','mc-2','mc-3','mc-4','mc-5'];
+
+  async function loadAll() {
+    const myData = await getUserData(uid);
+    const friendIds = myData?.friends || [];
+
+    // Carrega todos os membros (eu + amigos)
+    const allIds = [uid, ...friendIds];
+    const members = await Promise.all(allIds.map(id => getUserData(id)));
+    const stats = await Promise.all(allIds.map(id => getStats(id)));
+
+    renderMembers(members, stats);
+    await loadChallenges(allIds, members);
+    await loadFeed(allIds, members);
+  }
+
+  function renderMembers(members, stats) {
+    const list = document.getElementById('memberList');
+    if (members.filter(Boolean).length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum amigo conectado ainda.</p></div>`;
       return;
     }
-
-    connectSection.style.display = 'none';
-    connectedView.style.display = 'block';
-
-    // Renderizar tags de amigos
-    partnersList.innerHTML = '';
-    for (const pId of partners) {
-      const pDoc = await getDoc(doc(db, 'users', pId));
-      if (!pDoc.exists()) continue;
-      const pData = pDoc.data();
-
-      const tag = document.createElement('div');
-      tag.className = 'partner-tag';
-      tag.innerHTML = `
-        <span>${pData.name || 'Amigo'}</span>
-        <button class="btn btn-ghost btn-icon" style="width:24px;height:24px;font-size:1rem;" data-id="${pId}" title="Desconectar">✕</button>
-      `;
-      partnersList.appendChild(tag);
-
-      // Desconectar individual
-      tag.querySelector('button').addEventListener('click', async () => {
-        if (!confirm(`Desconectar de ${pData.name || 'este amigo'}?`)) return;
-        await updateDoc(doc(db, 'users', uid), { partners: arrayRemove(pId) });
-        await updateDoc(doc(db, 'users', pId), { partners: arrayRemove(uid) });
-        toast('Desconectado com sucesso.', 'success');
-        loadPartners();
-      });
-    }
-
-    // Comparação
-    await renderComparison(partners);
-
-    // Desafios e Feed
-    await loadChallenges();
-    await loadFeed(partners);
-  }
-
-  async function renderComparison(partnerIds) {
-    const grid = document.getElementById('compareGrid');
-    grid.innerHTML = '';
-
-    // Incluir você mesmo
-    const myVicios = (await getDocs(collection(db, `users/${uid}/vicios`))).docs;
-    const myHabitos = (await getDocs(collection(db, `users/${uid}/habitos`))).docs;
-    const myBestStreak = myVicios.length ? Math.max(...myVicios.map(d => daysBetween(d.data().startDate || today(), today()))) : 0;
-    const myHabitosDone = myHabitos.filter(d => (d.data().completedDates || []).includes(today())).length;
-
-    let html = `
-      <div class="compare-person">
-        <div class="person-header">
-          <div class="person-avatar">${user.displayName?.[0] || 'V'}</div>
-          <span class="person-name">${user.displayName || 'Você'}</span>
-        </div>
-        <div class="compare-stat"><div class="compare-stat-label">Melhor streak</div><div class="compare-stat-value">${myBestStreak}d</div></div>
-        <div class="compare-stat"><div class="compare-stat-label">Hábitos hoje</div><div class="compare-stat-value">${myHabitosDone}/${myHabitos.length}</div></div>
-      </div>`;
-
-    // Amigos
-    for (const pId of partnerIds) {
-      const pDoc = await getDoc(doc(db, 'users', pId));
-      if (!pDoc.exists()) continue;
-      const pData = pDoc.data();
-
-      const pVicios = (await getDocs(collection(db, `users/${pId}/vicios`))).docs;
-      const pHabitos = (await getDocs(collection(db, `users/${pId}/habitos`))).docs;
-      const pBestStreak = pVicios.length ? Math.max(...pVicios.map(d => daysBetween(d.data().startDate || today(), today()))) : 0;
-      const pHabitosDone = pHabitos.filter(d => (d.data().completedDates || []).includes(today())).length;
-
-      html += `
-        <div class="compare-person">
-          <div class="person-header">
-            <div class="person-avatar" style="background:#fef3c7;color:#d97706;">${pData.name?.[0] || 'A'}</div>
-            <span class="person-name">${pData.name || 'Amigo'}</span>
+    list.innerHTML = '';
+    members.forEach((m, i) => {
+      if (!m) return;
+      const isMe = m.id === uid;
+      const s = stats[i]||{};
+      const colorClass = memberColors[i % memberColors.length];
+      const card = document.createElement('div');
+      card.className = 'member-card fade-in';
+      card.innerHTML = `
+        <div class="member-header">
+          <div class="member-avatar ${colorClass}">${(m.name||m.email||'?')[0].toUpperCase()}</div>
+          <div style="flex:1">
+            <div class="member-name">${m.name||m.email||'Usuário'} ${isMe?'<span class="member-you">(você)</span>':''}</div>
+            <div style="font-size:.8rem;color:var(--text-3)">${m.email||''}</div>
           </div>
-          <div class="compare-stat"><div class="compare-stat-label">Melhor streak</div><div class="compare-stat-value">${pBestStreak}d</div></div>
-          <div class="compare-stat"><div class="compare-stat-label">Hábitos hoje</div><div class="compare-stat-value">${pHabitosDone}/${pHabitos.length}</div></div>
+          ${!isMe?`<button class="remove-member" data-id="${m.id}" title="Remover do grupo">✕ Remover</button>`:''}
+        </div>
+        <div class="member-stats">
+          <div class="mstat">
+            <div class="mstat-val">${s.streak||0}d</div>
+            <div class="mstat-label">Melhor streak</div>
+          </div>
+          <div class="mstat">
+            <div class="mstat-val">${s.habDone||0}/${s.habTotal||0}</div>
+            <div class="mstat-label">Hábitos hoje</div>
+          </div>
+          <div class="mstat">
+            <div class="mstat-val">${s.metas||0}</div>
+            <div class="mstat-label">Metas ativas</div>
+          </div>
         </div>`;
-    }
+      list.appendChild(card);
 
-    grid.innerHTML = html;
+      card.querySelector('.remove-member')?.addEventListener('click', async () => {
+        if (!confirm(`Remover ${m.name||'este amigo'} do grupo?`)) return;
+        await updateDoc(doc(db, 'users', uid), { friends: arrayRemove(m.id) });
+        // Tenta remover o vínculo do lado do amigo também
+        try { await updateDoc(doc(db, 'users', m.id), { friends: arrayRemove(uid) }); } catch(e){}
+        toast('Amigo removido do grupo.'); loadAll();
+      });
+    });
   }
 
-  async function loadChallenges() {
-    const snap = await getDocs(collection(db, `users/${uid}/challenges`));
+  async function loadChallenges(allIds, members) {
     const list = document.getElementById('challengesList');
+    // Desafios são armazenados no perfil do usuário logado
+    const snap = await getDocs(collection(db, `users/${uid}/challenges`));
     if (snap.empty) {
       list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div><p>Nenhum desafio ainda.</p></div>`;
       return;
     }
-    // (mesma lógica de antes – mantida simples)
-    list.innerHTML = snap.docs.map(d => {
+    list.innerHTML = '';
+    snap.forEach(d => {
       const c = d.data();
-      const elapsed = daysBetween(c.startDate, today());
-      const pct = Math.min(100, Math.round(elapsed / c.days * 100));
-      return `
-        <div class="challenge-card">
-          <div class="challenge-name">🏆 ${c.name}</div>
-          <div style="font-size:0.8rem;color:var(--text-3);margin-bottom:10px;">${c.days} dias · Iniciou ${new Date(c.startDate).toLocaleDateString('pt-BR')}</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div style="text-align:right;margin-top:4px;font-size:0.8rem;">${pct}% concluído</div>
+      const elapsed = daysBetween(c.startDate, todayStr);
+      const card = document.createElement('div');
+      card.className = 'challenge-card fade-in';
+      let barsHTML = '';
+      allIds.forEach((id, i) => {
+        const m = members[i];
+        if (!m) return;
+        const pct = Math.min(100, Math.round(elapsed / c.days * 100));
+        const colorStyle = ['#2d5be3','#d97706','#1a8c5b','#c0392b','#7c3aed','#ea580c'][i%6];
+        barsHTML += `<div class="ch-row">
+          <span class="ch-label">${(m.name||'?').split(' ')[0]}</span>
+          <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%;background:${colorStyle}"></div></div>
+          <span style="font-size:.75rem;min-width:30px;text-align:right">${pct}%</span>
         </div>`;
-    }).join('');
+      });
+      card.innerHTML = `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div class="challenge-name">🏆 ${c.name}</div>
+          <button class="btn btn-ghost btn-icon del-ch" data-id="${d.id}" style="font-size:.8rem">🗑️</button>
+        </div>
+        <div style="font-size:.75rem;color:var(--text-3);margin-bottom:10px">${c.days} dias · Iniciou ${new Date(c.startDate+'T00:00:00').toLocaleDateString('pt-BR')}</div>
+        ${barsHTML}`;
+      list.appendChild(card);
+
+      card.querySelector('.del-ch').addEventListener('click', async () => {
+        if (!confirm('Remover este desafio?')) return;
+        const { deleteDoc: dd } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await dd(doc(db, `users/${uid}/challenges`, d.id));
+        toast('Desafio removido.'); loadChallenges(allIds, members);
+      });
+    });
   }
 
-  async function loadFeed(partnerIds) {
-    const feedEl = document.getElementById('achieveFeed');
+  async function loadFeed(allIds, members) {
+    const feed = document.getElementById('achieveFeed');
     const items = [];
-
-    // Seus vícios
-    const mySnap = await getDocs(collection(db, `users/${uid}/vicios`));
-    mySnap.forEach(d => {
-      const v = d.data();
-      const days = daysBetween(v.startDate || today(), today());
-      if (days >= 1) items.push({ icon:'🛡️', text:`Você está há ${days} dia${days>1?'s':''} sem ${v.name}`, time: v.startDate });
-    });
-
-    // Vícios dos amigos
-    for (const pId of partnerIds) {
-      const pSnap = await getDocs(collection(db, `users/${pId}/vicios`));
-      const pDoc = await getDoc(doc(db, 'users', pId));
-      const pName = pDoc.data()?.name || 'Amigo';
-      pSnap.forEach(d => {
-        const v = d.data();
-        const days = daysBetween(v.startDate || today(), today());
-        if (days >= 1) items.push({ icon:'🛡️', text:`${pName} está há ${days} dia${days>1?'s':''} sem ${v.name}`, time: v.startDate });
-      });
+    for (let i = 0; i < allIds.length; i++) {
+      const id = allIds[i];
+      const m = members[i];
+      if (!m) continue;
+      const name = m.name || 'Alguém';
+      try {
+        const vSnap = await getDocs(collection(db, `users/${id}/vicios`));
+        vSnap.forEach(d => {
+          const v = d.data();
+          const days = daysBetween(v.startDate||todayStr, todayStr);
+          if (days >= 1) items.push({ icon:'🛡️', text:`${name} está há ${days} dia${days>1?'s':''} sem ${v.name}`, date: v.startDate });
+        });
+      } catch(e){}
+      try {
+        const mSnap = await getDocs(collection(db, `users/${id}/metas`));
+        mSnap.forEach(d => {
+          if (d.data().status==='concluida') items.push({ icon:'🎯', text:`${name} concluiu a meta "${d.data().name}"`, date: todayStr });
+        });
+      } catch(e){}
     }
-
-    if (items.length === 0) {
-      feedEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>Nenhuma conquista ainda. Continue evoluindo!</p></div>`;
+    if (!items.length) {
+      feed.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div><p>Nenhuma conquista ainda. Continue evoluindo!</p></div>`;
       return;
     }
-
-    items.sort((a,b) => b.time?.localeCompare(a.time));
-    feedEl.innerHTML = items.slice(0, 12).map(i => `
+    items.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    feed.innerHTML = items.slice(0,12).map(item => `
       <div class="feed-item">
-        <div class="feed-icon">${i.icon}</div>
-        <div>
-          <div class="feed-text">${i.text}</div>
-          <div class="feed-time">${i.time || ''}</div>
-        </div>
+        <div style="font-size:1.25rem;flex-shrink:0">${item.icon}</div>
+        <div style="font-size:.875rem">${item.text}</div>
       </div>`).join('');
   }
 
-  // Conectar novo amigo
-  document.getElementById('connectBtn').addEventListener('click', async () => {
-    const partnerId = document.getElementById('partnerIdInput').value.trim();
-    if (!partnerId) return toast('Insira o ID do amigo.', 'error');
-    if (partnerId === uid) return toast('Você não pode se conectar consigo mesmo.', 'error');
+  loadAll();
 
-    const partnerDoc = await getDoc(doc(db, 'users', partnerId));
-    if (!partnerDoc.exists()) return toast('ID não encontrado.', 'error');
+  // Adicionar amigo
+  document.getElementById('addFriendBtn').addEventListener('click', async () => {
+    const friendId = document.getElementById('friendIdInput').value.trim();
+    if (!friendId) return toast('Insira o ID do amigo.', 'error');
+    if (friendId === uid) return toast('Você não pode se adicionar.', 'error');
 
-    // Adiciona nos dois lados
-    await updateDoc(doc(db, 'users', uid), { partners: arrayUnion(partnerId) });
-    await updateDoc(doc(db, 'users', partnerId), { partners: arrayUnion(uid) });
+    const myData = await getUserData(uid);
+    if ((myData?.friends||[]).includes(friendId)) return toast('Este amigo já está no grupo.', 'error');
 
-    toast(`Conectado com ${partnerDoc.data().name || 'seu amigo'}! 🎉`, 'success');
-    loadPartners();
+    const friendData = await getUserData(friendId);
+    if (!friendData) return toast('Usuário não encontrado. Verifique o ID.', 'error');
+
+    // Adiciona dos dois lados
+    await updateDoc(doc(db, 'users', uid), { friends: arrayUnion(friendId) });
+    try { await updateDoc(doc(db, 'users', friendId), { friends: arrayUnion(uid) }); } catch(e){}
+
+    toast(`${friendData.name||'Amigo'} adicionado ao grupo! 🎉`, 'success');
+    document.getElementById('friendIdInput').value = '';
+    loadAll();
   });
 
-  // Modal desafio
+  // Novo desafio
   document.getElementById('addChallengeBtn').addEventListener('click', () => {
     document.getElementById('challengeName').value = '';
-    document.getElementById('challengeDays').value = '30';
+    document.getElementById('challengeDays').value = '';
     document.getElementById('challengeStart').value = today();
     openModal('modalChallenge');
   });
@@ -378,21 +349,16 @@
     const name = document.getElementById('challengeName').value.trim();
     const days = parseInt(document.getElementById('challengeDays').value);
     const start = document.getElementById('challengeStart').value || today();
-    if (!name || !days) return toast('Preencha todos os campos.', 'error');
-
-    await addDoc(collection(db, `users/${uid}/challenges`), {
-      name, days, startDate: start, createdAt: serverTimestamp()
-    });
-
+    if (!name || !days || days < 1) return toast('Preencha todos os campos.', 'error');
+    await addDoc(collection(db, `users/${uid}/challenges`), { name, days, startDate: start, createdAt: serverTimestamp() });
     toast('Desafio criado! 🏆', 'success');
     closeModal('modalChallenge');
-    loadChallenges();
+    const myData = await getUserData(uid);
+    const friendIds = myData?.friends || [];
+    const allIds = [uid, ...friendIds];
+    const members = await Promise.all(allIds.map(id => getUserData(id)));
+    loadChallenges(allIds, members);
   });
-
-  // Carregar tudo
-  loadPartners();
-
-  // Logout (já está no sidebar)
 </script>
 </body>
 </html>

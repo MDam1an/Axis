@@ -3,108 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Axis — Entre na sua conta</title>
+  <title>Axis — Entrar</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-    }
-
-    .auth-wrap {
-      width: 100%;
-      max-width: 400px;
-      padding: 24px;
-    }
-
-    .auth-logo {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-
-    .auth-logo .mark {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.25rem;
-      letter-spacing: -0.03em;
-    }
-
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .auth-wrap { width: 100%; max-width: 400px; padding: 24px; }
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo .mark { font-family: 'DM Serif Display', serif; font-size: 2.5rem; letter-spacing: -0.03em; }
     .auth-logo .mark span { color: var(--accent); }
-
-    .auth-logo .tagline {
-      font-size: 0.9rem;
-      color: var(--text-2);
-      margin-top: 4px;
-    }
-
-    .auth-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: var(--shadow-md);
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 28px;
-      background: var(--surface-2);
-      border-radius: var(--radius-sm);
-      padding: 3px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 8px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-2);
-      border-radius: calc(var(--radius-sm) - 2px);
-      cursor: pointer;
-      transition: all var(--transition);
-      background: none;
-    }
-
-    .auth-tab.active {
-      background: var(--surface);
-      color: var(--text);
-      box-shadow: var(--shadow);
-    }
-
+    .auth-logo .tagline { font-size: 0.9rem; color: var(--text-2); margin-top: 4px; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; box-shadow: var(--shadow-md); }
+    .auth-tabs { display: flex; margin-bottom: 24px; background: var(--surface-2); border-radius: var(--radius-sm); padding: 3px; }
+    .auth-tab { flex: 1; padding: 8px; text-align: center; font-size: 0.875rem; font-weight: 500; color: var(--text-2); border-radius: 6px; cursor: pointer; transition: all var(--transition); background: none; border: none; }
+    .auth-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
     .auth-section { display: none; }
     .auth-section.active { display: block; }
-
-    .auth-section h2 {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
-    }
-
-    .auth-section .sub {
-      font-size: 0.9rem;
-      color: var(--text-2);
-      margin-bottom: 24px;
-    }
-
-    .btn-full {
-      width: 100%;
-      justify-content: center;
-      padding: 11px;
-      font-size: 0.9375rem;
-    }
-
-    .auth-error {
-      background: var(--danger-light);
-      color: var(--danger);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.875rem;
-      margin-bottom: 16px;
-      display: none;
-    }
+    .auth-section h2 { font-size: 1.5rem; margin-bottom: 4px; }
+    .auth-section .sub { font-size: 0.875rem; color: var(--text-2); margin-bottom: 20px; }
+    .auth-error { background: var(--danger-light); color: var(--danger); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.875rem; margin-bottom: 14px; display: none; }
   </style>
 </head>
 <body>
@@ -113,14 +29,12 @@
       <div class="mark">Ax<span>i</span>s</div>
       <div class="tagline">Seu painel de vida pessoal</div>
     </div>
-
     <div class="auth-card">
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="login">Entrar</button>
         <button class="auth-tab" data-tab="register">Criar conta</button>
       </div>
 
-      <!-- LOGIN -->
       <div class="auth-section active" id="tab-login">
         <h2>Bem-vindo de volta</h2>
         <p class="sub">Entre para acessar seu painel</p>
@@ -136,7 +50,6 @@
         <button class="btn btn-primary btn-full" id="loginBtn">Entrar</button>
       </div>
 
-      <!-- REGISTER -->
       <div class="auth-section" id="tab-register">
         <h2>Criar sua conta</h2>
         <p class="sub">Comece a controlar sua vida agora</p>
@@ -160,7 +73,6 @@
 
   <script type="module">
     import { login, register, redirectIfLoggedIn } from './js/auth.js';
-
     redirectIfLoggedIn();
 
     // Tabs
@@ -175,17 +87,23 @@
 
     function showError(id, msg) {
       const el = document.getElementById(id);
-      el.textContent = msg;
-      el.style.display = 'block';
+      el.textContent = msg; el.style.display = 'block';
+    }
+    function hideErrors() {
+      ['login-error','register-error'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     }
 
-    function hideError(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+    const errMsgs = {
+      'auth/user-not-found': 'Usuário não encontrado.',
+      'auth/wrong-password': 'Senha incorreta.',
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/invalid-credential': 'E-mail ou senha incorretos.',
+      'auth/email-already-in-use': 'Este e-mail já está em uso.',
+      'auth/weak-password': 'Senha muito fraca (mínimo 6 caracteres).'
+    };
 
-    // Login
     document.getElementById('loginBtn').addEventListener('click', async () => {
-      hideError('login-error');
+      hideErrors();
       const email = document.getElementById('login-email').value.trim();
       const pass = document.getElementById('login-password').value;
       if (!email || !pass) return showError('login-error', 'Preencha todos os campos.');
@@ -193,22 +111,15 @@
       btn.textContent = 'Entrando...'; btn.disabled = true;
       try {
         await login(email, pass);
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard.html';
       } catch (e) {
         btn.textContent = 'Entrar'; btn.disabled = false;
-        const msgs = {
-          'auth/user-not-found': 'Usuário não encontrado.',
-          'auth/wrong-password': 'Senha incorreta.',
-          'auth/invalid-email': 'E-mail inválido.',
-          'auth/invalid-credential': 'E-mail ou senha incorretos.'
-        };
-        showError('login-error', msgs[e.code] || 'Erro ao entrar. Tente novamente.');
+        showError('login-error', errMsgs[e.code] || 'Erro ao entrar. Tente novamente.');
       }
     });
 
-    // Register
     document.getElementById('registerBtn').addEventListener('click', async () => {
-      hideError('register-error');
+      hideErrors();
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const pass = document.getElementById('reg-password').value;
@@ -218,25 +129,18 @@
       btn.textContent = 'Criando...'; btn.disabled = true;
       try {
         await register(name, email, pass);
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard.html';
       } catch (e) {
         btn.textContent = 'Criar conta'; btn.disabled = false;
-        const msgs = {
-          'auth/email-already-in-use': 'Este e-mail já está em uso.',
-          'auth/invalid-email': 'E-mail inválido.',
-          'auth/weak-password': 'Senha muito fraca.'
-        };
-        showError('register-error', msgs[e.code] || 'Erro ao criar conta. Tente novamente.');
+        showError('register-error', errMsgs[e.code] || 'Erro ao criar conta. Tente novamente.');
       }
     });
 
-    // Enter key
     document.querySelectorAll('.form-input').forEach(input => {
       input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          const activeTab = document.querySelector('.auth-section.active').id;
-          document.getElementById(activeTab === 'tab-login' ? 'loginBtn' : 'registerBtn').click();
-        }
+        if (e.key !== 'Enter') return;
+        const active = document.querySelector('.auth-section.active').id;
+        document.getElementById(active === 'tab-login' ? 'loginBtn' : 'registerBtn').click();
       });
     });
   </script>
