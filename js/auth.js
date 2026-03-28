@@ -12,7 +12,7 @@ import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs
 export function requireAuth() {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      window.location.href = '/index.html';
+      window.location.href = 'index.html';
     } else {
       _updateSidebarUser(user);
     }
@@ -22,7 +22,7 @@ export function requireAuth() {
 // Redireciona se já logado (login page)
 export function redirectIfLoggedIn() {
   onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = '/dashboard.html';
+    if (user) window.location.href = 'dashboard.html';
   });
 }
 
@@ -47,7 +47,7 @@ export async function login(email, password) {
 // Logout
 export async function logout() {
   await signOut(auth);
-  window.location.href = '/index.html';
+  window.location.href = 'index.html';
 }
 
 // Retorna usuário atual (promise)
