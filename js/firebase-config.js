@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────
-//  AXIS — Firebase Configuration
-// ─────────────────────────────────────────────────────────
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -12,12 +8,9 @@ const firebaseConfig = {
   projectId: "axis-4ba81",
   storageBucket: "axis-4ba81.firebasestorage.app",
   messagingSenderId: "907491466084",
-  appId: "1:907491466084:web:c925fa6b2881792e44b871",
-  measurementId: "G-503XKGEZ4Z"
+  appId: "1:907491466084:web:c925fa6b2881792e44b871"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-export { auth, db };
+export const auth = getAuth(app);
+export const db = getFirestore(app);

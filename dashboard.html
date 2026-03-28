@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Axis — Dashboard</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
-    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .vicio-row { display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border); }
-    .vicio-row:last-child { border-bottom:none; }
-    .hab-row { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
-    .hab-row:last-child { border-bottom:none; }
-    .meta-row { padding:12px 0;border-bottom:1px solid var(--border); }
-    .meta-row:last-child { border-bottom:none; }
-    .meta-row-name { font-size:.9375rem;font-weight:500;margin-bottom:7px; }
-    .meta-row-footer { display:flex;align-items:center;justify-content:space-between;margin-top:5px; }
-    @media(max-width:900px){ .stats-row{grid-template-columns:1fr 1fr;} .quick-grid{grid-template-columns:1fr;} }
-    @media(max-width:600px){ .stats-row{grid-template-columns:1fr 1fr;} }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+    .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .vrow { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+    .vrow:last-child { border-bottom:none; }
+    .hrow { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+    .hrow:last-child { border-bottom:none; }
+    .mrow { padding:12px 0;border-bottom:1px solid var(--border); }
+    .mrow:last-child { border-bottom:none; }
+    @media(max-width:900px){ .stats{grid-template-columns:1fr 1fr;} .dash-grid{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
@@ -26,8 +22,8 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
@@ -38,133 +34,107 @@
     <div class="page-content">
       <div class="page-header">
         <h1 id="welcomeMsg">Olá 👋</h1>
-        <p style="color:var(--text-2);font-size:.9375rem;">Aqui está um resumo do seu dia</p>
+        <p>Aqui está um resumo do seu dia</p>
       </div>
-
-      <div class="stats-row stagger">
-        <div class="card card-sm"><div class="card-title">Hábitos hoje</div><div class="stat-value" id="statHabitos">—</div><div class="stat-label">concluídos</div></div>
-        <div class="card card-sm"><div class="card-title">Melhor streak</div><div class="stat-value" id="statStreak">—</div><div class="stat-label">dias</div></div>
-        <div class="card card-sm"><div class="card-title">Metas ativas</div><div class="stat-value" id="statMetas">—</div><div class="stat-label">em andamento</div></div>
-        <div class="card card-sm"><div class="card-title">Saldo do mês</div><div class="stat-value" id="statSaldo" style="font-size:1.5rem;">—</div><div class="stat-label">R$</div></div>
+      <div class="stats">
+        <div class="card card-sm"><div class="card-title">Hábitos hoje</div><div class="stat-val" id="dHab">—</div><div class="stat-label">concluídos</div></div>
+        <div class="card card-sm"><div class="card-title">Melhor streak</div><div class="stat-val" id="dStreak">—</div><div class="stat-label">dias</div></div>
+        <div class="card card-sm"><div class="card-title">Metas ativas</div><div class="stat-val" id="dMetas">—</div><div class="stat-label">em andamento</div></div>
+        <div class="card card-sm"><div class="card-title">Saldo do mês</div><div class="stat-val" id="dSaldo" style="font-size:1.4rem">—</div><div class="stat-label">R$</div></div>
       </div>
-
-      <div class="quick-grid">
+      <div class="dash-grid">
         <div class="card">
-          <div class="section-heading">Vícios em controle</div>
-          <div id="dashVicios"><div class="empty-state"><div class="empty-icon">🛡️</div><p>Nenhum vício cadastrado.<br><a href="vicios.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
+          <div class="section-title">Vícios em controle</div>
+          <div id="dViciosList"><div class="empty"><div class="empty-icon">🛡️</div><p>Nenhum vício. <a href="vicios.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
         </div>
         <div class="card">
-          <div class="section-heading">Hábitos de hoje</div>
-          <div id="dashHabitos"><div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum hábito cadastrado.<br><a href="habitos.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
+          <div class="section-title">Hábitos de hoje</div>
+          <div id="dHabitosList"><div class="empty"><div class="empty-icon">✅</div><p>Nenhum hábito. <a href="habitos.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
         </div>
-        <div class="card" style="grid-column:1/-1;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div class="section-heading" style="margin:0">Metas em andamento</div>
+        <div class="card" style="grid-column:1/-1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="section-title" style="margin:0">Metas em andamento</div>
             <a href="metas.html" class="btn btn-ghost btn-sm">Ver todas →</a>
           </div>
-          <div id="dashMetas"><div class="empty-state"><div class="empty-icon">🎯</div><p>Nenhuma meta cadastrada.<br><a href="metas.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
+          <div id="dMetasList"><div class="empty"><div class="empty-icon">🎯</div><p>Nenhuma meta. <a href="metas.html" style="color:var(--accent)">Adicionar →</a></p></div></div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <script type="module">
-  import { initPage } from './js/page-shell.js';
-  import { getCurrentUser } from './js/auth.js';
+  import { initShell } from './js/shell.js';
   import { db } from './js/firebase-config.js';
   import { today, daysBetween, fmt } from './js/utils.js';
   import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  initPage('Dashboard');
+  initShell('Dashboard', async (user) => {
+    document.getElementById('welcomeMsg').textContent = `Olá, ${(user.displayName||'você').split(' ')[0]} 👋`;
+    const uid = user.uid;
+    const t = today();
+    const mes = t.slice(0,7);
 
-  const user = await getCurrentUser();
-  if (!user) return;
+    // Vícios
+    try {
+      const snap = await getDocs(collection(db, `users/${uid}/vicios`));
+      if (!snap.empty) {
+        let maxS = 0;
+        const rows = [];
+        snap.forEach(d => {
+          const v = d.data();
+          const days = daysBetween(v.startDate || t, t);
+          if (days > maxS) maxS = days;
+          rows.push(`<div class="vrow"><span style="font-size:1.3rem">${v.emoji||'🚫'}</span><div style="flex:1"><div style="font-size:.9rem;font-weight:500">${v.name}</div><div style="font-size:.78rem;color:var(--text-2)">${days===0?'Começou hoje':`${days} dia${days!==1?'s':''}`}</div></div><span style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--success)">${days}d</span></div>`);
+        });
+        document.getElementById('dViciosList').innerHTML = rows.join('');
+        document.getElementById('dStreak').textContent = maxS + 'd';
+      }
+    } catch(e) {}
 
-  document.getElementById('welcomeMsg').textContent = `Olá, ${user.displayName?.split(' ')[0] || 'você'} 👋`;
+    // Hábitos
+    try {
+      const snap = await getDocs(collection(db, `users/${uid}/habitos`));
+      if (!snap.empty) {
+        let done = 0, total = 0;
+        const rows = [];
+        snap.forEach(d => {
+          const h = d.data();
+          const isDone = (h.completedDates||[]).includes(t);
+          if (isDone) done++;
+          total++;
+          rows.push(`<div class="hrow"><div class="check ${isDone?'on':''}">${isDone?'✓':''}</div><span style="font-size:.9rem;${isDone?'text-decoration:line-through;color:var(--text-3)':''}">${h.emoji||'✅'} ${h.name}</span></div>`);
+        });
+        document.getElementById('dHabitosList').innerHTML = rows.join('');
+        document.getElementById('dHab').textContent = `${done}/${total}`;
+      }
+    } catch(e) {}
 
-  const uid = user.uid;
-  const todayStr = today();
-  const mesAtual = todayStr.slice(0,7);
+    // Metas
+    try {
+      const snap = await getDocs(collection(db, `users/${uid}/metas`));
+      if (!snap.empty) {
+        let ativas = 0;
+        const rows = [];
+        snap.forEach(d => {
+          const m = d.data();
+          if (m.status === 'concluida') return;
+          ativas++;
+          const pct = Math.min(100, Math.round(m.progress||0));
+          rows.push(`<div class="mrow"><div style="font-weight:500;margin-bottom:6px">${m.name}</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div style="display:flex;justify-content:space-between;margin-top:5px"><span class="badge badge-neutral">${m.category||'Geral'}</span><span style="font-size:.8rem;color:var(--text-2)">${pct}%</span></div></div>`);
+        });
+        if (rows.length) document.getElementById('dMetasList').innerHTML = rows.join('');
+        document.getElementById('dMetas').textContent = ativas;
+      }
+    } catch(e) {}
 
-  // Vícios
-  try {
-    const snap = await getDocs(collection(db, `users/${uid}/vicios`));
-    if (!snap.empty) {
-      let maxStreak = 0;
-      const rows = [];
-      snap.forEach(d => {
-        const v = d.data();
-        const days = daysBetween(v.startDate || todayStr, todayStr);
-        if (days > maxStreak) maxStreak = days;
-        rows.push(`<div class="vicio-row">
-          <span style="font-size:1.4rem">${v.emoji||'🚫'}</span>
-          <div style="flex:1"><div style="font-size:.9rem;font-weight:500">${v.name}</div>
-          <div style="font-size:.8rem;color:var(--text-2)">${days===0?'Iniciou hoje':`${days} dia${days!==1?'s':''}`}</div></div>
-          <span style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--success)">${days}d</span>
-        </div>`);
-      });
-      document.getElementById('dashVicios').innerHTML = rows.join('');
-      document.getElementById('statStreak').textContent = maxStreak + 'd';
-    }
-  } catch(e) { console.warn(e); }
-
-  // Hábitos
-  try {
-    const snap = await getDocs(collection(db, `users/${uid}/habitos`));
-    if (!snap.empty) {
-      let done = 0, total = 0;
-      const rows = [];
-      snap.forEach(d => {
-        const h = d.data();
-        const isDone = (h.completedDates||[]).includes(todayStr);
-        if (isDone) done++;
-        total++;
-        rows.push(`<div class="hab-row">
-          <div class="custom-checkbox ${isDone?'checked':''}">${isDone?'✓':''}</div>
-          <span style="font-size:.9rem;${isDone?'text-decoration:line-through;color:var(--text-3)':''}">${h.emoji||'✅'} ${h.name}</span>
-        </div>`);
-      });
-      document.getElementById('dashHabitos').innerHTML = rows.join('');
-      document.getElementById('statHabitos').textContent = `${done}/${total}`;
-    }
-  } catch(e) { console.warn(e); }
-
-  // Metas
-  try {
-    const snap = await getDocs(collection(db, `users/${uid}/metas`));
-    if (!snap.empty) {
-      let ativas = 0;
-      const rows = [];
-      snap.forEach(d => {
-        const m = d.data();
-        if (m.status === 'concluida') return;
-        ativas++;
-        const pct = Math.min(100, Math.round(m.progress||0));
-        rows.push(`<div class="meta-row">
-          <div class="meta-row-name">${m.name}</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div class="meta-row-footer">
-            <span class="badge badge-neutral">${m.category||'Geral'}</span>
-            <span style="font-size:.8rem;color:var(--text-2)">${pct}%</span>
-          </div>
-        </div>`);
-      });
-      if (rows.length) document.getElementById('dashMetas').innerHTML = rows.join('');
-      document.getElementById('statMetas').textContent = ativas;
-    }
-  } catch(e) { console.warn(e); }
-
-  // Finanças
-  try {
-    const snap = await getDocs(collection(db, `users/${uid}/transacoes`));
-    let saldo = 0;
-    snap.forEach(d => {
-      const t = d.data();
-      if (t.date?.startsWith(mesAtual)) saldo += t.type==='entrada' ? t.amount : -t.amount;
-    });
-    document.getElementById('statSaldo').textContent = fmt(saldo);
-  } catch(e) { console.warn(e); }
+    // Finanças
+    try {
+      const snap = await getDocs(collection(db, `users/${uid}/transacoes`));
+      let saldo = 0;
+      snap.forEach(d => { const t2 = d.data(); if (t2.date?.startsWith(mes)) saldo += t2.type==='entrada' ? t2.amount : -t2.amount; });
+      document.getElementById('dSaldo').textContent = fmt(saldo);
+    } catch(e) {}
+  });
 </script>
 </body>
 </html>

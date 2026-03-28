@@ -1,33 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Axis — Finanças</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .fin-layout { display:grid;grid-template-columns:1fr 300px;gap:18px; }
+    .fin-layout { display:grid;grid-template-columns:1fr 290px;gap:18px; }
     @media(max-width:900px){ .fin-layout{grid-template-columns:1fr;} }
-    .saldo-card { background:var(--text);color:#fff;border-radius:var(--radius);padding:24px;margin-bottom:14px; }
-    .saldo-label { font-size:.875rem;opacity:.6;margin-bottom:5px; }
-    .saldo-value { font-family:'DM Serif Display',serif;font-size:2.25rem;line-height:1; }
-    .saldo-value.negativo { color:#ff8a7a; }
     .mes-row { display:flex;align-items:center;gap:10px;margin-bottom:14px; }
-    .mes-btn { background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.9rem; }
-    .mes-label { font-weight:500;font-size:.9375rem; }
-    .trans-row { display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border); }
-    .trans-row:last-child { border-bottom:none; }
-    .trans-icon { width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0; }
-    .trans-icon.entrada { background:var(--success-light); }
-    .trans-icon.saida { background:var(--danger-light); }
-    .trans-val { font-weight:600;font-size:.9375rem; }
-    .trans-val.entrada { color:var(--success); }
-    .trans-val.saida { color:var(--danger); }
+    .mes-btn { background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.9rem;transition:background .15s; }
+    .mes-btn:hover { background:var(--surface-2); }
+    .mes-label { font-weight:500; }
+    .tipo-row { display:flex;gap:8px;margin-bottom:14px; }
+    .tipo-btn { flex:1;padding:9px;border-radius:var(--radius-sm);font-size:.875rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s; }
+    .tipo-btn.on { background:var(--text);color:#fff;border-color:var(--text); }
     .resumo-item { display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:.875rem; }
     .resumo-item:last-child { border-bottom:none; }
-    .tipo-btns { display:flex;gap:8px;margin-bottom:14px; }
-    .tipo-btn { flex:1;padding:9px;border-radius:var(--radius-sm);font-size:.875rem;font-weight:500;cursor:pointer;transition:all var(--transition);border:1.5px solid var(--border);background:var(--surface);color:var(--text-2); }
-    .tipo-btn.active { background:var(--text);color:#fff;border-color:var(--text); }
   </style>
 </head>
 <body>
@@ -36,24 +24,24 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button class="hamburger" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
         <span class="topbar-title" id="topbarTitle">Finanças</span>
       </div>
       <span class="topbar-date" id="topbarDate"></span>
     </header>
     <div class="page-content">
-      <div class="page-header-row">
-        <div><h1>Finanças Pessoais</h1><p style="color:var(--text-2);font-size:.9375rem;">Controle suas entradas e saídas</p></div>
-        <button class="btn btn-primary" id="addTransBtn">+ Nova transação</button>
+      <div class="page-top">
+        <div><h1>Finanças Pessoais</h1><p>Controle suas entradas e saídas</p></div>
+        <button class="btn btn-primary" id="btnAdd">+ Nova transação</button>
       </div>
       <div class="fin-layout">
         <div>
           <div class="saldo-card">
             <div class="saldo-label">Saldo do mês</div>
-            <div class="saldo-value" id="saldoValue">R$ 0,00</div>
+            <div class="saldo-value" id="saldoVal">R$ 0,00</div>
             <div style="display:flex;gap:22px;margin-top:14px">
-              <div><div style="font-size:.75rem;opacity:.6;margin-bottom:2px">Entradas</div><div style="font-size:1rem;font-weight:600;color:#7affb2" id="totalEntradas">R$ 0,00</div></div>
-              <div><div style="font-size:.75rem;opacity:.6;margin-bottom:2px">Saídas</div><div style="font-size:1rem;font-weight:600;color:#ff8a7a" id="totalSaidas">R$ 0,00</div></div>
+              <div><div style="font-size:.72rem;opacity:.6;margin-bottom:2px">Entradas</div><div style="font-size:.95rem;font-weight:600;color:#7affb2" id="totalEnt">R$ 0,00</div></div>
+              <div><div style="font-size:.72rem;opacity:.6;margin-bottom:2px">Saídas</div><div style="font-size:.95rem;font-weight:600;color:#ff8a7a" id="totalSai">R$ 0,00</div></div>
             </div>
           </div>
           <div class="mes-row">
@@ -64,27 +52,27 @@
           <div class="card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <div class="card-title" style="margin:0">Transações</div>
-              <select class="form-select" id="filterTipo" style="width:auto;padding:4px 10px;font-size:.8125rem">
+              <select class="form-select" id="tipoFilter" style="width:auto;padding:4px 9px;font-size:.8rem">
                 <option value="todos">Todas</option><option value="entrada">Entradas</option><option value="saida">Saídas</option>
               </select>
             </div>
-            <div id="transList"><div class="empty-state"><div class="empty-icon">💰</div><p>Nenhuma transação neste período.</p></div></div>
+            <div id="transList"><div class="empty"><div class="empty-icon">💰</div><p>Nenhuma transação.</p></div></div>
           </div>
         </div>
         <div>
           <div class="card" style="margin-bottom:14px">
             <div class="card-title">Gastos por categoria</div>
-            <div id="catResumo"><div style="color:var(--text-3);font-size:.875rem">Sem saídas neste mês.</div></div>
+            <div id="catRes"><div style="color:var(--text-3);font-size:.875rem">Sem dados.</div></div>
           </div>
           <div class="card">
             <div class="card-title">Meta de economia</div>
             <div class="form-group" style="margin-bottom:8px">
-              <label class="form-label">Meta mensal (R$)</label>
-              <input type="number" class="form-input" id="metaEconomia" placeholder="0" min="0">
+              <label class="form-label">Valor mensal (R$)</label>
+              <input type="number" class="form-input" id="metaEconVal" placeholder="0" min="0">
             </div>
-            <div class="progress-bar" style="margin-bottom:5px"><div class="progress-fill success" id="metaProg" style="width:0%"></div></div>
-            <div style="font-size:.8rem;color:var(--text-2)" id="metaProgLabel">0% da meta</div>
-            <button class="btn btn-outline btn-sm" style="margin-top:10px;width:100%;justify-content:center" id="saveMeta">Salvar meta</button>
+            <div class="progress-bar" style="margin-bottom:5px"><div class="progress-fill pf-green" id="metaEconBar" style="width:0%"></div></div>
+            <div style="font-size:.78rem;color:var(--text-2)" id="metaEconLbl">0% da meta</div>
+            <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" id="btnSaveMeta">Salvar meta</button>
           </div>
         </div>
       </div>
@@ -92,156 +80,147 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalTrans">
+<!-- Modal transação -->
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-header"><h2>Nova transação</h2><button class="modal-close">✕</button></div>
+    <div class="modal-head"><h2>Nova transação</h2><button class="modal-close">✕</button></div>
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Tipo</label>
-        <div class="tipo-btns">
-          <button class="tipo-btn" id="btnEntrada" onclick="setTipo('entrada')">✅ Entrada</button>
-          <button class="tipo-btn active" id="btnSaida" onclick="setTipo('saida')">💸 Saída</button>
+        <div class="tipo-row">
+          <button class="tipo-btn" id="btnEnt" onclick="setTipo('entrada')">✅ Entrada</button>
+          <button class="tipo-btn on" id="btnSai" onclick="setTipo('saida')">💸 Saída</button>
         </div>
-        <input type="hidden" id="transType" value="saida">
+        <input type="hidden" id="tipoVal" value="saida">
       </div>
-      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="transDesc" placeholder="Ex: Salário, Almoço, Netflix..."></div>
-      <div class="form-group"><label class="form-label">Valor (R$)</label><input type="number" class="form-input" id="transAmount" placeholder="0,00" min="0" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="fDesc" placeholder="Ex: Salário, Almoço..."></div>
+      <div class="form-group"><label class="form-label">Valor (R$)</label><input type="number" class="form-input" id="fAmt" placeholder="0,00" min="0" step="0.01"></div>
       <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="transCat">
+        <select class="form-select" id="fCat">
           <option>Alimentação</option><option>Transporte</option><option>Lazer</option>
           <option>Saúde</option><option>Educação</option><option>Assinaturas</option><option>Renda</option><option>Outro</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Data</label><input type="date" class="form-input" id="transDate"></div>
-      <button class="btn btn-primary btn-full" id="saveTransBtn">Salvar</button>
+      <div class="form-group"><label class="form-label">Data</label><input type="date" class="form-input" id="fDate"></div>
+      <button class="btn btn-primary btn-full" id="btnSave">Salvar</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initPage } from './js/page-shell.js';
-  import { getCurrentUser } from './js/auth.js';
-  import { today, fmt, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { initShell } from './js/shell.js';
   import { db } from './js/firebase-config.js';
+  import { today, fmt, toast, openModal, closeModal, setupModals } from './js/utils.js';
   import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  initPage('Finanças');
-  bindModalClose();
-
-  const user = await getCurrentUser();
-  if (!user) return;
-  const uid = user.uid;
-  const colRef = () => collection(db, `users/${uid}/transacoes`);
+  setupModals();
+  let uid = '';
   const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const now = new Date();
-  let viewYear = now.getFullYear(), viewMonth = now.getMonth();
+  let yr = now.getFullYear(), mo = now.getMonth();
 
-  // Tipo botões — exposto globalmente para onclick inline
-  window.setTipo = function(tipo) {
-    document.getElementById('transType').value = tipo;
-    document.getElementById('btnEntrada').classList.toggle('active', tipo==='entrada');
-    document.getElementById('btnSaida').classList.toggle('active', tipo==='saida');
+  window.setTipo = function(t) {
+    document.getElementById('tipoVal').value = t;
+    document.getElementById('btnEnt').classList.toggle('on', t==='entrada');
+    document.getElementById('btnSai').classList.toggle('on', t==='saida');
   };
 
-  async function loadTransacoes() {
-    const ms = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
-    document.getElementById('mesLabel').textContent = `${meses[viewMonth]} ${viewYear}`;
+  initShell('Finanças', async (user) => { uid = user.uid; await loadTrans(); });
 
-    const snap = await getDocs(colRef());
+  async function loadTrans() {
+    const ms = `${yr}-${String(mo+1).padStart(2,'0')}`;
+    document.getElementById('mesLabel').textContent = `${meses[mo]} ${yr}`;
+    const snap = await getDocs(collection(db, `users/${uid}/transacoes`));
     let items = [];
     snap.forEach(d => { const t = {id:d.id,...d.data()}; if(t.date?.startsWith(ms)) items.push(t); });
 
-    let entradas = 0, saidas = 0;
-    items.forEach(t => { if(t.type==='entrada') entradas+=t.amount; else saidas+=t.amount; });
-    const saldo = entradas - saidas;
-    const sEl = document.getElementById('saldoValue');
-    sEl.textContent = fmt(saldo);
-    sEl.className = `saldo-value ${saldo<0?'negativo':''}`;
-    document.getElementById('totalEntradas').textContent = fmt(entradas);
-    document.getElementById('totalSaidas').textContent = fmt(saidas);
+    let ent=0, sai=0;
+    items.forEach(t => { if(t.type==='entrada') ent+=t.amount; else sai+=t.amount; });
+    const saldo = ent - sai;
+    document.getElementById('saldoVal').textContent = fmt(saldo);
+    document.getElementById('saldoVal').className = `saldo-value${saldo<0?' saldo-neg':''}`;
+    document.getElementById('totalEnt').textContent = fmt(ent);
+    document.getElementById('totalSai').textContent = fmt(sai);
 
-    // Meta
+    // Meta economia
     try {
       const metaDoc = await getDoc(doc(db, `users/${uid}/config`, 'financas'));
-      const metaVal = metaDoc.exists() ? (metaDoc.data().metaEconomia||0) : 0;
-      if (metaVal > 0) {
-        document.getElementById('metaEconomia').value = metaVal;
-        const pct = Math.max(0, Math.min(100, Math.round(saldo/metaVal*100)));
-        document.getElementById('metaProg').style.width = pct+'%';
-        document.getElementById('metaProgLabel').textContent = `${pct}% da meta (${fmt(metaVal)})`;
+      const mv = metaDoc.exists() ? (metaDoc.data().metaEconomia||0) : 0;
+      if (mv > 0) {
+        document.getElementById('metaEconVal').value = mv;
+        const pct = Math.max(0, Math.min(100, Math.round(saldo/mv*100)));
+        document.getElementById('metaEconBar').style.width = pct+'%';
+        document.getElementById('metaEconLbl').textContent = `${pct}% da meta (${fmt(mv)})`;
       }
     } catch(e){}
 
     // Lista
-    const filter = document.getElementById('filterTipo').value;
+    const filter = document.getElementById('tipoFilter').value;
     const filtered = filter==='todos' ? items : items.filter(t=>t.type===filter);
-    filtered.sort((a,b)=>b.date?.localeCompare(a.date));
+    filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     const list = document.getElementById('transList');
-    if (!filtered.length) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><p>Nenhuma transação neste período.</p></div>`;
-    } else {
-      list.innerHTML = filtered.map(t => `
+    if (!filtered.length) { list.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>Nenhuma transação neste período.</p></div>'; }
+    else {
+      list.innerHTML = filtered.map(t=>`
         <div class="trans-row">
-          <div class="trans-icon ${t.type}">${t.type==='entrada'?'⬆️':'⬇️'}</div>
+          <div class="trans-icon ${t.type==='entrada'?'ti-entrada':'ti-saida'}">${t.type==='entrada'?'⬆️':'⬇️'}</div>
           <div style="flex:1">
             <div style="font-size:.9rem;font-weight:500">${t.description}</div>
-            <div style="font-size:.8rem;color:var(--text-2)">${t.category||'Outro'} · ${t.date?new Date(t.date+'T00:00:00').toLocaleDateString('pt-BR'):''}</div>
+            <div style="font-size:.78rem;color:var(--text-2)">${t.category||'Outro'} · ${t.date?new Date(t.date+'T00:00:00').toLocaleDateString('pt-BR'):''}</div>
           </div>
-          <div class="trans-val ${t.type}">${t.type==='entrada'?'+':'-'}${fmt(t.amount)}</div>
-          <button class="btn btn-ghost btn-icon del-t" data-id="${t.id}">🗑️</button>
+          <span class="${t.type==='entrada'?'tv-entrada':'tv-saida'} " style="font-size:.9rem">${t.type==='entrada'?'+':'-'}${fmt(t.amount)}</span>
+          <button class="btn btn-ghost btn-icon" data-del="${t.id}">🗑️</button>
         </div>`).join('');
-      list.querySelectorAll('.del-t').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (!confirm('Remover esta transação?')) return;
-          await deleteDoc(doc(db, `users/${uid}/transacoes`, btn.dataset.id));
-          toast('Removido.'); loadTransacoes();
+      list.querySelectorAll('[data-del]').forEach(btn=>{
+        btn.addEventListener('click', async()=>{
+          if(!confirm('Remover?')) return;
+          await deleteDoc(doc(db,`users/${uid}/transacoes`,btn.dataset.del));
+          toast('Removido.'); loadTrans();
         });
       });
     }
 
-    // Resumo por categoria
-    const catMap = {};
+    // Por categoria
+    const catMap={};
     items.filter(t=>t.type==='saida').forEach(t=>{ catMap[t.category]=(catMap[t.category]||0)+t.amount; });
-    const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-    document.getElementById('catResumo').innerHTML = cats.length===0
-      ? `<div style="color:var(--text-3);font-size:.875rem">Sem saídas neste mês.</div>`
-      : cats.map(([cat,val])=>`<div class="resumo-item"><span>${cat}</span><span style="font-weight:500">${fmt(val)}</span></div>`).join('');
+    const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('catRes').innerHTML = cats.length===0
+      ? '<div style="color:var(--text-3);font-size:.875rem">Sem saídas neste mês.</div>'
+      : cats.map(([c,v])=>`<div class="resumo-item"><span>${c}</span><span style="font-weight:500">${fmt(v)}</span></div>`).join('');
   }
 
-  loadTransacoes();
+  document.getElementById('prevMes').addEventListener('click', ()=>{ mo--; if(mo<0){mo=11;yr--;} loadTrans(); });
+  document.getElementById('nextMes').addEventListener('click', ()=>{ mo++; if(mo>11){mo=0;yr++;} loadTrans(); });
+  document.getElementById('tipoFilter').addEventListener('change', loadTrans);
 
-  document.getElementById('prevMes').addEventListener('click', () => { viewMonth--; if(viewMonth<0){viewMonth=11;viewYear--;} loadTransacoes(); });
-  document.getElementById('nextMes').addEventListener('click', () => { viewMonth++; if(viewMonth>11){viewMonth=0;viewYear++;} loadTransacoes(); });
-  document.getElementById('filterTipo').addEventListener('change', loadTransacoes);
-
-  document.getElementById('addTransBtn').addEventListener('click', () => {
-    document.getElementById('transDesc').value = '';
-    document.getElementById('transAmount').value = '';
-    document.getElementById('transDate').value = today();
+  document.getElementById('btnAdd').addEventListener('click', ()=>{
+    document.getElementById('fDesc').value='';
+    document.getElementById('fAmt').value='';
+    document.getElementById('fDate').value=today();
     window.setTipo('saida');
-    openModal('modalTrans');
+    openModal('modal');
   });
 
-  document.getElementById('saveTransBtn').addEventListener('click', async () => {
-    const desc = document.getElementById('transDesc').value.trim();
-    const amount = parseFloat(document.getElementById('transAmount').value);
-    if (!desc || isNaN(amount) || amount <= 0) return toast('Preencha todos os campos corretamente.','error');
-    const tipo = document.getElementById('transType').value;
-    await addDoc(colRef(), {
-      description: desc, amount, type: tipo,
-      category: document.getElementById('transCat').value,
-      date: document.getElementById('transDate').value || today(),
-      createdAt: serverTimestamp()
+  document.getElementById('btnSave').addEventListener('click', async()=>{
+    const desc=document.getElementById('fDesc').value.trim();
+    const amt=parseFloat(document.getElementById('fAmt').value);
+    if(!desc||isNaN(amt)||amt<=0) return toast('Preencha todos os campos.','error');
+    const tipo=document.getElementById('tipoVal').value;
+    await addDoc(collection(db,`users/${uid}/transacoes`),{
+      description:desc, amount:amt, type:tipo,
+      category:document.getElementById('fCat').value,
+      date:document.getElementById('fDate').value||today(),
+      createdAt:serverTimestamp()
     });
-    toast(`${tipo==='entrada'?'Entrada':'Saída'} registrada!`, 'success');
-    closeModal('modalTrans'); loadTransacoes();
+    toast(`${tipo==='entrada'?'Entrada':'Saída'} registrada!`,'success');
+    closeModal('modal'); loadTrans();
   });
 
-  document.getElementById('saveMeta').addEventListener('click', async () => {
-    const val = parseFloat(document.getElementById('metaEconomia').value);
-    if (isNaN(val)||val<0) return toast('Valor inválido.','error');
-    await setDoc(doc(db, `users/${uid}/config`, 'financas'), { metaEconomia: val });
-    toast('Meta salva!', 'success'); loadTransacoes();
+  document.getElementById('btnSaveMeta').addEventListener('click', async()=>{
+    const v=parseFloat(document.getElementById('metaEconVal').value);
+    if(isNaN(v)||v<0) return toast('Valor inválido.','error');
+    await setDoc(doc(db,`users/${uid}/config`,'financas'),{metaEconomia:v});
+    toast('Meta salva!','success'); loadTrans();
   });
 </script>
 </body>

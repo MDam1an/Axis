@@ -1,31 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Axis — Vícios</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .vicios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .vicio-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:box-shadow var(--transition); }
-    .vicio-card:hover { box-shadow:var(--shadow-md); }
+    .vicios-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
     .vicio-head { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px; }
     .vicio-head-left { display:flex;align-items:center;gap:10px; }
     .vicio-emoji { font-size:2rem; }
     .vicio-name { font-size:.9375rem;font-weight:600; }
-    .vicio-cat { font-size:.8rem;color:var(--text-2);margin-top:1px; }
-    .diff-badge { display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:500;margin-top:3px; }
-    .diff-leve { background:var(--success-light);color:var(--success); }
-    .diff-moderado { background:var(--warning-light);color:var(--warning); }
-    .diff-severo { background:var(--danger-light);color:var(--danger); }
-    .streak-box { text-align:center;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:12px 0; }
-    .streak-num { font-family:'DM Serif Display',serif;font-size:3rem;line-height:1;color:var(--success); }
-    .streak-num.zero { color:var(--text-3); }
-    .streak-sub { font-size:.8rem;color:var(--text-2);margin-top:3px; }
-    .vicio-motiv { font-size:.85rem;color:var(--text-2);font-style:italic;margin-bottom:10px; }
-    .recaida-btn { width:100%;background:var(--danger-light);color:var(--danger);border:none;border-radius:var(--radius-sm);padding:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all var(--transition); }
-    .recaida-btn:hover { background:#fad7d4; }
-    .recaida-hist { margin-top:8px;font-size:.8rem;color:var(--text-3); }
+    .vicio-cat { font-size:.78rem;color:var(--text-2); }
+    .vicio-actions { display:flex;gap:3px; }
   </style>
 </head>
 <body>
@@ -34,83 +20,73 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button class="hamburger" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
         <span class="topbar-title" id="topbarTitle">Vícios</span>
       </div>
       <span class="topbar-date" id="topbarDate"></span>
     </header>
     <div class="page-content">
-      <div class="page-header-row">
-        <div><h1>Vícios & Restrições</h1><p style="color:var(--text-2);font-size:.9375rem;">Acompanhe seus dias sem recaída</p></div>
-        <button class="btn btn-primary" id="addVicioBtn">+ Adicionar vício</button>
+      <div class="page-top">
+        <div><h1>Vícios & Restrições</h1><p>Acompanhe seus dias sem recaída</p></div>
+        <button class="btn btn-primary" id="btnAdd">+ Adicionar vício</button>
       </div>
-      <div class="vicios-grid stagger" id="viciosGrid">
-        <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🛡️</div><p>Nenhum vício cadastrado ainda. Adicione o primeiro!</p></div>
+      <div class="vicios-grid" id="viciosGrid">
+        <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🛡️</div><p>Nenhum vício cadastrado ainda.</p></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modalVicio">
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-header"><h2 id="modalVicioTitle">Novo vício</h2><button class="modal-close">✕</button></div>
+    <div class="modal-head"><h2 id="modalTitle">Novo vício</h2><button class="modal-close">✕</button></div>
     <div class="modal-body">
-      <input type="hidden" id="editVicioId">
-      <div class="form-group"><label class="form-label">Nome do vício</label><input class="form-input" id="vicioName" placeholder="Ex: Açúcar, Cigarro, Redes sociais..."></div>
-      <div class="form-group"><label class="form-label">Emoji</label><input class="form-input" id="vicioEmoji" placeholder="🚫" maxlength="2"></div>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label class="form-label">Nome do vício</label><input class="form-input" id="fName" placeholder="Ex: Açúcar, Cigarro..."></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input class="form-input" id="fEmoji" placeholder="🚫" maxlength="2"></div>
       <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="vicioCategory">
-          <option value="alimentação">Alimentação</option>
-          <option value="comportamento">Comportamento</option>
-          <option value="tecnologia">Tecnologia</option>
-          <option value="substância">Substância</option>
-          <option value="outro">Outro</option>
+        <select class="form-select" id="fCat">
+          <option value="alimentação">Alimentação</option><option value="comportamento">Comportamento</option>
+          <option value="tecnologia">Tecnologia</option><option value="substância">Substância</option><option value="outro">Outro</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Dificuldade</label>
-        <select class="form-select" id="vicioDiff">
-          <option value="leve">Leve</option>
-          <option value="moderado">Moderado</option>
-          <option value="severo">Severo</option>
-        </select>
+        <select class="form-select" id="fDiff"><option value="leve">Leve</option><option value="moderado">Moderado</option><option value="severo">Severo</option></select>
       </div>
-      <div class="form-group"><label class="form-label">Data de início (quando parou)</label><input type="date" class="form-input" id="vicioDate"></div>
-      <div class="form-group"><label class="form-label">Motivação (opcional)</label><textarea class="form-textarea" id="vicioMotivation" placeholder="Por que você quer parar?"></textarea></div>
-      <button class="btn btn-primary btn-full" id="saveVicioBtn">Salvar</button>
+      <div class="form-group"><label class="form-label">Data que parou</label><input type="date" class="form-input" id="fDate"></div>
+      <div class="form-group"><label class="form-label">Motivação (opcional)</label><textarea class="form-textarea" id="fMotiv" placeholder="Por que quer parar?"></textarea></div>
+      <button class="btn btn-primary btn-full" id="btnSave">Salvar</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initPage } from './js/page-shell.js';
-  import { getCurrentUser } from './js/auth.js';
-  import { today, daysBetween, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { initShell } from './js/shell.js';
   import { db } from './js/firebase-config.js';
+  import { today, daysBetween, toast, openModal, closeModal, setupModals } from './js/utils.js';
   import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  initPage('Vícios');
-  bindModalClose();
+  setupModals();
+  let uid = '';
 
-  const user = await getCurrentUser();
-  if (!user) return;
-  const uid = user.uid;
-  const colRef = () => collection(db, `users/${uid}/vicios`);
+  initShell('Vícios', async (user) => {
+    uid = user.uid;
+    await load();
+  });
 
   async function load() {
     const grid = document.getElementById('viciosGrid');
+    const snap = await getDocs(collection(db, `users/${uid}/vicios`));
+    if (snap.empty) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🛡️</div><p>Nenhum vício cadastrado ainda.</p></div>'; return; }
     grid.innerHTML = '';
-    const snap = await getDocs(colRef());
-    if (snap.empty) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🛡️</div><p>Nenhum vício cadastrado ainda. Adicione o primeiro!</p></div>`;
-      return;
-    }
-    const todayStr = today();
+    const t = today();
     snap.forEach(d => {
       const v = d.data();
-      const days = daysBetween(v.startDate || todayStr, todayStr);
-      const dc = {leve:'diff-leve',moderado:'diff-moderado',severo:'diff-severo'}[v.difficulty]||'diff-leve';
+      const days = daysBetween(v.startDate || t, t);
+      const dc = {leve:'db-leve',moderado:'db-moderado',severo:'db-severo'}[v.difficulty] || 'db-leve';
       const card = document.createElement('div');
-      card.className = 'vicio-card fade-in';
+      card.className = 'vicio-card';
       card.innerHTML = `
         <div class="vicio-head">
           <div class="vicio-head-left">
@@ -121,82 +97,78 @@
               <span class="diff-badge ${dc}">${v.difficulty||'leve'}</span>
             </div>
           </div>
-          <div style="display:flex;gap:3px">
-            <button class="btn btn-ghost btn-icon edit-btn" data-id="${d.id}">✏️</button>
-            <button class="btn btn-ghost btn-icon del-btn" data-id="${d.id}">🗑️</button>
+          <div class="vicio-actions">
+            <button class="btn btn-ghost btn-icon" data-act="edit">✏️</button>
+            <button class="btn btn-ghost btn-icon" data-act="del">🗑️</button>
           </div>
         </div>
         <div class="streak-box">
           <div class="streak-num ${days===0?'zero':''}">${days}</div>
           <div class="streak-sub">${days===1?'dia sem recaída':'dias sem recaída'}</div>
         </div>
-        ${v.motivation?`<div class="vicio-motiv">"${v.motivation}"</div>`:''}
-        <button class="recaida-btn" data-id="${d.id}" data-name="${v.name}">😔 Tive uma recaída</button>
-        ${(v.relapses?.length||0)>0?`<div class="recaida-hist">Recaídas registradas: ${v.relapses.length}</div>`:''}`;
+        ${v.motivation ? `<div style="font-size:.85rem;color:var(--text-2);font-style:italic;margin-bottom:10px">"${v.motivation}"</div>` : ''}
+        <button class="btn-recaida">😔 Tive uma recaída</button>
+        ${(v.relapses?.length||0)>0 ? `<div style="font-size:.78rem;color:var(--text-3);margin-top:7px">Recaídas: ${v.relapses.length}</div>` : ''}`;
       grid.appendChild(card);
 
-      card.querySelector('.del-btn').addEventListener('click', async () => {
+      card.querySelector('[data-act="del"]').addEventListener('click', async () => {
         if (!confirm('Remover este vício?')) return;
         await deleteDoc(doc(db, `users/${uid}/vicios`, d.id));
         toast('Vício removido.'); load();
       });
 
-      card.querySelector('.edit-btn').addEventListener('click', () => {
-        document.getElementById('editVicioId').value = d.id;
-        document.getElementById('vicioName').value = v.name;
-        document.getElementById('vicioEmoji').value = v.emoji||'';
-        document.getElementById('vicioCategory').value = v.category||'outro';
-        document.getElementById('vicioDiff').value = v.difficulty||'leve';
-        document.getElementById('vicioDate').value = v.startDate||today();
-        document.getElementById('vicioMotivation').value = v.motivation||'';
-        document.getElementById('modalVicioTitle').textContent = 'Editar vício';
-        openModal('modalVicio');
+      card.querySelector('[data-act="edit"]').addEventListener('click', () => {
+        document.getElementById('editId').value = d.id;
+        document.getElementById('fName').value = v.name;
+        document.getElementById('fEmoji').value = v.emoji || '';
+        document.getElementById('fCat').value = v.category || 'outro';
+        document.getElementById('fDiff').value = v.difficulty || 'leve';
+        document.getElementById('fDate').value = v.startDate || today();
+        document.getElementById('fMotiv').value = v.motivation || '';
+        document.getElementById('modalTitle').textContent = 'Editar vício';
+        openModal('modal');
       });
 
-      card.querySelector('.recaida-btn').addEventListener('click', async () => {
+      card.querySelector('.btn-recaida').addEventListener('click', async () => {
         if (!confirm(`Registrar recaída em "${v.name}"? O contador será resetado.`)) return;
         const relapses = [...(v.relapses||[]), today()];
         await updateDoc(doc(db, `users/${uid}/vicios`, d.id), { startDate: today(), relapses });
-        toast('Recaída registrada. Recomeça do zero 💪'); load();
+        toast('Recaída registrada. Você consegue 💪'); load();
       });
     });
   }
 
-  load();
-
-  document.getElementById('addVicioBtn').addEventListener('click', () => {
-    document.getElementById('editVicioId').value = '';
-    document.getElementById('vicioName').value = '';
-    document.getElementById('vicioEmoji').value = '';
-    document.getElementById('vicioDate').value = today();
-    document.getElementById('vicioMotivation').value = '';
-    document.getElementById('modalVicioTitle').textContent = 'Novo vício';
-    openModal('modalVicio');
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    document.getElementById('editId').value = '';
+    document.getElementById('fName').value = '';
+    document.getElementById('fEmoji').value = '';
+    document.getElementById('fDate').value = today();
+    document.getElementById('fMotiv').value = '';
+    document.getElementById('modalTitle').textContent = 'Novo vício';
+    openModal('modal');
   });
 
-  document.getElementById('saveVicioBtn').addEventListener('click', async () => {
-    const name = document.getElementById('vicioName').value.trim();
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const name = document.getElementById('fName').value.trim();
     if (!name) return toast('Informe o nome do vício.', 'error');
     const data = {
-      name,
-      emoji: document.getElementById('vicioEmoji').value||'🚫',
-      category: document.getElementById('vicioCategory').value,
-      difficulty: document.getElementById('vicioDiff').value,
-      startDate: document.getElementById('vicioDate').value||today(),
-      motivation: document.getElementById('vicioMotivation').value.trim(),
+      name, emoji: document.getElementById('fEmoji').value || '🚫',
+      category: document.getElementById('fCat').value,
+      difficulty: document.getElementById('fDiff').value,
+      startDate: document.getElementById('fDate').value || today(),
+      motivation: document.getElementById('fMotiv').value.trim(),
       updatedAt: serverTimestamp()
     };
-    const editId = document.getElementById('editVicioId').value;
+    const editId = document.getElementById('editId').value;
     if (editId) {
       await updateDoc(doc(db, `users/${uid}/vicios`, editId), data);
       toast('Vício atualizado!', 'success');
     } else {
-      data.relapses = [];
-      data.createdAt = serverTimestamp();
-      await addDoc(colRef(), data);
+      data.relapses = []; data.createdAt = serverTimestamp();
+      await addDoc(collection(db, `users/${uid}/vicios`), data);
       toast('Vício adicionado! Você consegue 💪', 'success');
     }
-    closeModal('modalVicio'); load();
+    closeModal('modal'); load();
   });
 </script>
 </body>

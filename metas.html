@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Axis — Metas</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .filter-row { display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap; }
-    .filter-btn { padding:5px 14px;border-radius:20px;font-size:.8125rem;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all var(--transition); }
-    .filter-btn.active { background:var(--text);color:#fff;border-color:var(--text); }
+    .filters { display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px; }
+    .fbtn { padding:5px 14px;border-radius:20px;font-size:.8125rem;font-weight:500;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .15s; }
+    .fbtn.on { background:var(--text);color:#fff;border-color:var(--text); }
     .metas-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px; }
-    .meta-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:box-shadow var(--transition); }
+    .meta-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:box-shadow .2s; }
     .meta-card:hover { box-shadow:var(--shadow-md); }
     .meta-card.concluida { opacity:.6; }
     .meta-prog-row { display:flex;align-items:center;gap:10px;margin:12px 0; }
     .meta-pct { font-family:'DM Serif Display',serif;font-size:1.5rem;min-width:50px; }
-    .meta-range { width:100%;cursor:pointer;accent-color:var(--accent); }
-    .meta-footer { display:flex;align-items:center;justify-content:space-between;margin-top:10px; }
+    input[type=range] { width:100%;cursor:pointer;accent-color:var(--accent); }
+    .meta-footer { display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px; }
     .status-sel { font-size:.8rem;border:1px solid var(--border);border-radius:6px;padding:3px 7px;background:var(--surface);cursor:pointer; }
   </style>
 </head>
@@ -26,93 +25,83 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button class="hamburger" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
         <span class="topbar-title" id="topbarTitle">Metas</span>
       </div>
       <span class="topbar-date" id="topbarDate"></span>
     </header>
     <div class="page-content">
-      <div class="page-header-row">
-        <div><h1>Metas & Objetivos</h1><p style="color:var(--text-2);font-size:.9375rem;">Acompanhe seu progresso</p></div>
-        <button class="btn btn-primary" id="addMetaBtn">+ Nova meta</button>
+      <div class="page-top">
+        <div><h1>Metas & Objetivos</h1><p>Acompanhe seu progresso</p></div>
+        <button class="btn btn-primary" id="btnAdd">+ Nova meta</button>
       </div>
-      <div class="filter-row" id="filterRow">
-        <button class="filter-btn active" data-f="todas">Todas</button>
-        <button class="filter-btn" data-f="andamento">Em andamento</button>
-        <button class="filter-btn" data-f="concluida">Concluídas</button>
-        <button class="filter-btn" data-f="pausada">Pausadas</button>
+      <div class="filters">
+        <button class="fbtn on" data-f="todas">Todas</button>
+        <button class="fbtn" data-f="andamento">Em andamento</button>
+        <button class="fbtn" data-f="concluida">Concluídas</button>
+        <button class="fbtn" data-f="pausada">Pausadas</button>
       </div>
-      <div class="metas-grid stagger" id="metasGrid">
-        <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎯</div><p>Nenhuma meta cadastrada ainda.</p></div>
+      <div class="metas-grid" id="metasGrid">
+        <div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎯</div><p>Nenhuma meta cadastrada ainda.</p></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modalMeta">
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-header"><h2 id="modalMetaTitle">Nova meta</h2><button class="modal-close">✕</button></div>
+    <div class="modal-head"><h2 id="modalTitle">Nova meta</h2><button class="modal-close">✕</button></div>
     <div class="modal-body">
-      <input type="hidden" id="editMetaId">
-      <div class="form-group"><label class="form-label">Nome da meta</label><input class="form-input" id="metaName" placeholder="Ex: Aprender inglês, Economizar R$5000..."></div>
-      <div class="form-group"><label class="form-label">Descrição (opcional)</label><textarea class="form-textarea" id="metaDesc" placeholder="Detalhes da sua meta..."></textarea></div>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="fName" placeholder="Ex: Aprender inglês, Economizar R$5000..."></div>
+      <div class="form-group"><label class="form-label">Descrição (opcional)</label><textarea class="form-textarea" id="fDesc" placeholder="Detalhes..."></textarea></div>
       <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="metaCat">
+        <select class="form-select" id="fCat">
           <option>Saúde</option><option>Finanças</option><option>Educação</option>
           <option>Carreira</option><option>Pessoal</option><option>Viagem</option><option>Outro</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Prazo</label><input type="date" class="form-input" id="metaPrazo"></div>
-      <div class="form-group"><label class="form-label">Progresso inicial: <span id="progLabel">0%</span></label>
-        <input type="range" class="meta-range" id="metaProgress" min="0" max="100" value="0" oninput="document.getElementById('progLabel').textContent=this.value+'%'">
+      <div class="form-group"><label class="form-label">Prazo</label><input type="date" class="form-input" id="fPrazo"></div>
+      <div class="form-group"><label class="form-label">Progresso inicial: <span id="pLabel">0%</span></label>
+        <input type="range" id="fProg" min="0" max="100" value="0" oninput="document.getElementById('pLabel').textContent=this.value+'%'">
       </div>
-      <button class="btn btn-primary btn-full" id="saveMetaBtn">Salvar</button>
+      <button class="btn btn-primary btn-full" id="btnSave">Salvar</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initPage } from './js/page-shell.js';
-  import { getCurrentUser } from './js/auth.js';
-  import { today, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { initShell } from './js/shell.js';
   import { db } from './js/firebase-config.js';
+  import { today, toast, openModal, closeModal, setupModals } from './js/utils.js';
   import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  initPage('Metas');
-  bindModalClose();
+  setupModals();
+  let uid = '', filter = 'todas';
 
-  const user = await getCurrentUser();
-  if (!user) return;
-  const uid = user.uid;
-  const colRef = () => collection(db, `users/${uid}/metas`);
-  let activeFilter = 'todas';
+  initShell('Metas', async (user) => { uid = user.uid; await load(); });
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  document.querySelectorAll('.fbtn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeFilter = btn.dataset.f;
-      load();
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on'); filter = btn.dataset.f; load();
     });
   });
 
   async function load() {
     const grid = document.getElementById('metasGrid');
-    grid.innerHTML = '';
-    const snap = await getDocs(colRef());
+    const snap = await getDocs(collection(db, `users/${uid}/metas`));
     let items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-    if (activeFilter !== 'todas') items = items.filter(m => m.status === activeFilter);
-    if (!items.length) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎯</div><p>Nenhuma meta aqui ainda.</p></div>`;
-      return;
-    }
+    if (filter !== 'todas') items = items.filter(m => m.status === filter);
+    if (!items.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎯</div><p>Nenhuma meta aqui ainda.</p></div>'; return; }
+    grid.innerHTML = '';
     items.forEach(m => {
       const pct = Math.min(100, Math.round(m.progress||0));
-      const isVencida = m.deadline && m.deadline < today() && m.status !== 'concluida';
+      const isV = m.deadline && m.deadline < today() && m.status !== 'concluida';
       const prazo = m.deadline ? new Date(m.deadline+'T00:00:00').toLocaleDateString('pt-BR') : 'Sem prazo';
       const card = document.createElement('div');
-      card.className = `meta-card fade-in ${m.status==='concluida'?'concluida':''}`;
+      card.className = `meta-card ${m.status==='concluida'?'concluida':''}`;
       card.innerHTML = `
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
           <div style="flex:1">
@@ -120,19 +109,19 @@
             ${m.description?`<div style="font-size:.85rem;color:var(--text-2);margin-bottom:6px">${m.description}</div>`:''}
             <span class="badge badge-neutral">${m.category||'Geral'}</span>
           </div>
-          <div style="display:flex;gap:3px;flex-shrink:0;margin-left:8px">
-            <button class="btn btn-ghost btn-icon edit-m">✏️</button>
-            <button class="btn btn-ghost btn-icon del-m">🗑️</button>
+          <div style="display:flex;gap:3px;margin-left:8px;flex-shrink:0">
+            <button class="btn btn-ghost btn-icon" data-act="edit">✏️</button>
+            <button class="btn btn-ghost btn-icon" data-act="del">🗑️</button>
           </div>
         </div>
         <div class="meta-prog-row">
-          <div class="meta-pct" id="mpct-${m.id}">${pct}%</div>
-          <input type="range" class="meta-range" min="0" max="100" value="${pct}"
-            oninput="document.getElementById('mpct-${m.id}').textContent=this.value+'%';document.getElementById('mbar-${m.id}').style.width=this.value+'%'">
+          <div class="meta-pct" id="pct-${m.id}">${pct}%</div>
+          <input type="range" min="0" max="100" value="${pct}"
+            oninput="document.getElementById('pct-${m.id}').textContent=this.value+'%';document.getElementById('bar-${m.id}').style.width=this.value+'%'">
         </div>
-        <div class="progress-bar"><div class="progress-fill ${pct>=100?'success':''}" id="mbar-${m.id}" style="width:${pct}%"></div></div>
+        <div class="progress-bar"><div class="progress-fill pf-green" id="bar-${m.id}" style="width:${pct}%"></div></div>
         <div class="meta-footer">
-          <span style="font-size:.8rem;color:${isVencida?'var(--danger)':'var(--text-2)'}">${isVencida?'⚠️ ':''}${prazo}</span>
+          <span style="font-size:.8rem;color:${isV?'var(--danger)':'var(--text-2)'}">${isV?'⚠️ ':''}${prazo}</span>
           <select class="status-sel">
             <option value="andamento" ${m.status==='andamento'?'selected':''}>Em andamento</option>
             <option value="pausada" ${m.status==='pausada'?'selected':''}>Pausada</option>
@@ -141,71 +130,58 @@
         </div>`;
       grid.appendChild(card);
 
-      // Salvar progresso ao soltar o slider
-      card.querySelector('.meta-range').addEventListener('change', async e => {
-        const val = parseInt(e.target.value);
-        await updateDoc(doc(db, `users/${uid}/metas`, m.id), { progress: val });
-        if (val === 100) toast('Meta concluída! 🎉', 'success');
+      card.querySelector('input[type=range]').addEventListener('change', async e => {
+        await updateDoc(doc(db, `users/${uid}/metas`, m.id), { progress: parseInt(e.target.value) });
+        if (parseInt(e.target.value) === 100) toast('Meta concluída! 🎉', 'success');
       });
-
       card.querySelector('.status-sel').addEventListener('change', async e => {
         await updateDoc(doc(db, `users/${uid}/metas`, m.id), { status: e.target.value });
-        toast('Status atualizado!','success'); load();
+        toast('Status atualizado!', 'success'); load();
       });
-
-      card.querySelector('.del-m').addEventListener('click', async () => {
+      card.querySelector('[data-act="del"]').addEventListener('click', async () => {
         if (!confirm('Remover esta meta?')) return;
         await deleteDoc(doc(db, `users/${uid}/metas`, m.id));
         toast('Meta removida.'); load();
       });
-
-      card.querySelector('.edit-m').addEventListener('click', () => {
-        document.getElementById('editMetaId').value = m.id;
-        document.getElementById('metaName').value = m.name;
-        document.getElementById('metaDesc').value = m.description||'';
-        document.getElementById('metaCat').value = m.category||'Outro';
-        document.getElementById('metaPrazo').value = m.deadline||'';
-        document.getElementById('metaProgress').value = m.progress||0;
-        document.getElementById('progLabel').textContent = (m.progress||0)+'%';
-        document.getElementById('modalMetaTitle').textContent = 'Editar meta';
-        openModal('modalMeta');
+      card.querySelector('[data-act="edit"]').addEventListener('click', () => {
+        document.getElementById('editId').value = m.id;
+        document.getElementById('fName').value = m.name;
+        document.getElementById('fDesc').value = m.description||'';
+        document.getElementById('fCat').value = m.category||'Outro';
+        document.getElementById('fPrazo').value = m.deadline||'';
+        document.getElementById('fProg').value = m.progress||0;
+        document.getElementById('pLabel').textContent = (m.progress||0)+'%';
+        document.getElementById('modalTitle').textContent = 'Editar meta';
+        openModal('modal');
       });
     });
   }
 
-  load();
-
-  document.getElementById('addMetaBtn').addEventListener('click', () => {
-    document.getElementById('editMetaId').value = '';
-    document.getElementById('metaName').value = '';
-    document.getElementById('metaDesc').value = '';
-    document.getElementById('metaPrazo').value = '';
-    document.getElementById('metaProgress').value = 0;
-    document.getElementById('progLabel').textContent = '0%';
-    document.getElementById('modalMetaTitle').textContent = 'Nova meta';
-    openModal('modalMeta');
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    document.getElementById('editId').value = '';
+    document.getElementById('fName').value = '';
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fPrazo').value = '';
+    document.getElementById('fProg').value = 0;
+    document.getElementById('pLabel').textContent = '0%';
+    document.getElementById('modalTitle').textContent = 'Nova meta';
+    openModal('modal');
   });
 
-  document.getElementById('saveMetaBtn').addEventListener('click', async () => {
-    const name = document.getElementById('metaName').value.trim();
-    if (!name) return toast('Informe o nome da meta.','error');
-    const data = {
-      name, description: document.getElementById('metaDesc').value.trim(),
-      category: document.getElementById('metaCat').value,
-      deadline: document.getElementById('metaPrazo').value||null,
-      progress: parseInt(document.getElementById('metaProgress').value),
-      updatedAt: serverTimestamp()
-    };
-    const editId = document.getElementById('editMetaId').value;
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const name = document.getElementById('fName').value.trim();
+    if (!name) return toast('Informe o nome da meta.', 'error');
+    const data = { name, description: document.getElementById('fDesc').value.trim(), category: document.getElementById('fCat').value, deadline: document.getElementById('fPrazo').value||null, progress: parseInt(document.getElementById('fProg').value), updatedAt: serverTimestamp() };
+    const editId = document.getElementById('editId').value;
     if (editId) {
       await updateDoc(doc(db, `users/${uid}/metas`, editId), data);
-      toast('Meta atualizada!','success');
+      toast('Meta atualizada!', 'success');
     } else {
       data.status = 'andamento'; data.createdAt = serverTimestamp();
-      await addDoc(colRef(), data);
-      toast('Meta criada! Vai lá 🎯','success');
+      await addDoc(collection(db, `users/${uid}/metas`), data);
+      toast('Meta criada! 🎯', 'success');
     }
-    closeModal('modalMeta'); load();
+    closeModal('modal'); load();
   });
 </script>
 </body>

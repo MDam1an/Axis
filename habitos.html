@@ -1,26 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Axis — Hábitos</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
-    .habitos-layout { display:grid;grid-template-columns:1fr 340px;gap:18px; }
-    @media(max-width:900px){ .habitos-layout{grid-template-columns:1fr;} }
-    .habito-item { display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity var(--transition); }
-    .habito-item:last-child { border-bottom:none; }
-    .habito-item:hover { opacity:.8; }
-    .habito-icon { width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--surface-2);flex-shrink:0; }
-    .habito-name { font-size:.9375rem;font-weight:500; }
-    .habito-name.done { text-decoration:line-through;color:var(--text-3); }
-    .cat-badge { display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:500;margin-top:2px; }
-    .cat-saude{background:#e8f5ef;color:#1a8c5b} .cat-estudo{background:#eef2fd;color:#2d5be3} .cat-social{background:#fef3c7;color:#d97706} .cat-financas{background:#f0f0f0;color:#555} .cat-outro{background:var(--surface-2);color:var(--text-2)}
-    .prog-row { display:flex;align-items:center;gap:10px;margin-bottom:18px; }
-    .prog-frac { font-family:'DM Serif Display',serif;font-size:1.25rem;min-width:38px; }
-    .cons-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px; }
-    .c-day { aspect-ratio:1;border-radius:3px;background:var(--surface-2); }
-    .c-day.done { background:var(--success); }
+    .hab-layout { display:grid; grid-template-columns:1fr 320px; gap:18px; }
+    @media(max-width:900px){ .hab-layout{grid-template-columns:1fr;} }
+    .prog-row { display:flex;align-items:center;gap:10px;margin-bottom:16px; }
+    .prog-frac { font-family:'DM Serif Display',serif;font-size:1.25rem;min-width:40px; }
+    .hab-actions { margin-left:auto;display:flex;gap:3px; }
   </style>
 </head>
 <body>
@@ -29,35 +18,35 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button class="hamburger" id="hamburgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
         <span class="topbar-title" id="topbarTitle">Hábitos</span>
       </div>
       <span class="topbar-date" id="topbarDate"></span>
     </header>
     <div class="page-content">
-      <div class="page-header-row">
-        <div><h1>Hábitos diários</h1><p style="color:var(--text-2);font-size:.9375rem;">Marque os hábitos concluídos hoje</p></div>
-        <button class="btn btn-primary" id="addHabitoBtn">+ Novo hábito</button>
+      <div class="page-top">
+        <div><h1>Hábitos diários</h1><p>Marque os concluídos hoje</p></div>
+        <button class="btn btn-primary" id="btnAdd">+ Novo hábito</button>
       </div>
-      <div class="habitos-layout">
+      <div class="hab-layout">
         <div>
           <div class="card" style="margin-bottom:14px">
             <div class="card-title">Progresso de hoje</div>
             <div class="prog-row">
-              <div class="prog-frac" id="habFrac">0/0</div>
-              <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill success" id="habBar" style="width:0%"></div></div></div>
+              <span class="prog-frac" id="habFrac">0/0</span>
+              <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill pf-green" id="habBar" style="width:0%"></div></div></div>
               <span id="habPct" style="font-size:.875rem;color:var(--text-2)">0%</span>
             </div>
           </div>
           <div class="card">
             <div class="card-title">Seus hábitos</div>
-            <div id="habitosList"><div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum hábito ainda. Adicione o primeiro!</p></div></div>
+            <div id="habList"><div class="empty"><div class="empty-icon">✅</div><p>Nenhum hábito. Adicione o primeiro!</p></div></div>
           </div>
         </div>
         <div>
           <div class="card">
             <div class="card-title">Consistência — últimas 4 semanas</div>
-            <div id="consLegend" style="font-size:.8rem;color:var(--text-2);margin-bottom:6px">Clique em 📊 para ver um hábito</div>
+            <div id="consName" style="font-size:.8rem;color:var(--text-2);margin-bottom:7px">Clique em 📊 para ver</div>
             <div class="cons-grid" id="consGrid"></div>
           </div>
         </div>
@@ -66,114 +55,103 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalHabito">
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-header"><h2 id="modalHabitoTitle">Novo hábito</h2><button class="modal-close">✕</button></div>
+    <div class="modal-head"><h2 id="modalTitle">Novo hábito</h2><button class="modal-close">✕</button></div>
     <div class="modal-body">
-      <input type="hidden" id="editHabitoId">
-      <div class="form-group"><label class="form-label">Nome do hábito</label><input class="form-input" id="habitoName" placeholder="Ex: Beber 2L de água, Estudar 30min..."></div>
-      <div class="form-group"><label class="form-label">Emoji</label><input class="form-input" id="habitoEmoji" placeholder="💧" maxlength="2"></div>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label class="form-label">Nome do hábito</label><input class="form-input" id="fName" placeholder="Ex: Beber 2L de água..."></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input class="form-input" id="fEmoji" placeholder="💧" maxlength="2"></div>
       <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="habitoCat">
+        <select class="form-select" id="fCat">
           <option value="saude">Saúde</option><option value="estudo">Estudo</option>
           <option value="social">Social</option><option value="financas">Finanças</option><option value="outro">Outro</option>
         </select>
       </div>
-      <button class="btn btn-primary btn-full" id="saveHabitoBtn">Salvar</button>
+      <button class="btn btn-primary btn-full" id="btnSave">Salvar</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initPage } from './js/page-shell.js';
-  import { getCurrentUser } from './js/auth.js';
-  import { today, toast, openModal, closeModal, bindModalClose } from './js/utils.js';
+  import { initShell } from './js/shell.js';
   import { db } from './js/firebase-config.js';
+  import { today, toast, openModal, closeModal, setupModals } from './js/utils.js';
   import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  initPage('Hábitos');
-  bindModalClose();
+  setupModals();
+  let uid = '';
+  const catPills = {saude:'cp-saude',estudo:'cp-estudo',social:'cp-social',financas:'cp-financas',outro:'cp-outro'};
 
-  const user = await getCurrentUser();
-  if (!user) return;
-  const uid = user.uid;
-  const colRef = () => collection(db, `users/${uid}/habitos`);
-  const todayStr = today();
-  const catMap = {saude:'cat-saude',estudo:'cat-estudo',social:'cat-social',financas:'cat-financas',outro:'cat-outro'};
+  initShell('Hábitos', async (user) => { uid = user.uid; await load(); });
 
   async function load() {
-    const snap = await getDocs(colRef());
-    const list = document.getElementById('habitosList');
-    if (snap.empty) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhum hábito ainda. Adicione o primeiro!</p></div>`;
-      updateProgress(0,0); return;
-    }
+    const t = today();
+    const snap = await getDocs(collection(db, `users/${uid}/habitos`));
+    const list = document.getElementById('habList');
+    if (snap.empty) { list.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><p>Nenhum hábito. Adicione o primeiro!</p></div>'; updateProg(0,0); return; }
     let done = 0, total = 0;
     list.innerHTML = '';
     snap.forEach(d => {
       const h = d.data();
-      const isDone = (h.completedDates||[]).includes(todayStr);
+      const isDone = (h.completedDates||[]).includes(t);
       if (isDone) done++;
       total++;
       const row = document.createElement('div');
-      row.className = 'habito-item';
+      row.className = 'habito-row';
       row.innerHTML = `
-        <div class="custom-checkbox ${isDone?'checked':''}">${isDone?'✓':''}</div>
+        <div class="check ${isDone?'on':''}">${isDone?'✓':''}</div>
         <div class="habito-icon">${h.emoji||'✅'}</div>
         <div style="flex:1">
-          <div class="habito-name ${isDone?'done':''}">${h.name}</div>
-          <span class="cat-badge ${catMap[h.category]||'cat-outro'}">${h.category||'outro'}</span>
+          <div style="font-size:.9375rem;font-weight:500;${isDone?'text-decoration:line-through;color:var(--text-3)':''}">${h.name}</div>
+          <span class="cat-pill ${catPills[h.category]||'cp-outro'}">${h.category||'outro'}</span>
         </div>
-        <div style="display:flex;gap:3px" onclick="event.stopPropagation()">
-          <button class="btn btn-ghost btn-icon show-cons" data-dates='${JSON.stringify(h.completedDates||[])}' data-name="${h.name}" title="Consistência">📊</button>
-          <button class="btn btn-ghost btn-icon edit-h" data-id="${d.id}" title="Editar">✏️</button>
-          <button class="btn btn-ghost btn-icon del-h" data-id="${d.id}" title="Excluir">🗑️</button>
+        <div class="hab-actions">
+          <button class="btn btn-ghost btn-icon" data-act="cons" title="Consistência" data-dates='${JSON.stringify(h.completedDates||[])}' data-name="${h.name}">📊</button>
+          <button class="btn btn-ghost btn-icon" data-act="edit">✏️</button>
+          <button class="btn btn-ghost btn-icon" data-act="del">🗑️</button>
         </div>`;
+      list.appendChild(row);
 
-      // Toggle check
-      row.querySelector('.custom-checkbox').addEventListener('click', async () => {
+      // Toggle check — só no checkbox
+      row.querySelector('.check').addEventListener('click', async () => {
         const ref = doc(db, `users/${uid}/habitos`, d.id);
-        const dates = h.completedDates||[];
-        if (dates.includes(todayStr)) {
-          await updateDoc(ref, { completedDates: arrayRemove(todayStr) });
+        if (isDone) {
+          await updateDoc(ref, { completedDates: arrayRemove(t) });
         } else {
-          await updateDoc(ref, { completedDates: arrayUnion(todayStr) });
+          await updateDoc(ref, { completedDates: arrayUnion(t) });
           toast(`"${h.name}" concluído hoje! 🎉`, 'success');
         }
         load();
       });
 
-      row.querySelector('.show-cons').addEventListener('click', () => {
-        const dates = JSON.parse(row.querySelector('.show-cons').dataset.dates||'[]');
-        document.getElementById('consLegend').textContent = h.name;
-        renderCons(dates);
+      row.querySelector('[data-act="cons"]').addEventListener('click', e => {
+        const btn = e.currentTarget;
+        document.getElementById('consName').textContent = btn.dataset.name;
+        renderCons(JSON.parse(btn.dataset.dates||'[]'));
       });
-
-      row.querySelector('.edit-h').addEventListener('click', () => {
-        document.getElementById('editHabitoId').value = d.id;
-        document.getElementById('habitoName').value = h.name;
-        document.getElementById('habitoEmoji').value = h.emoji||'';
-        document.getElementById('habitoCat').value = h.category||'outro';
-        document.getElementById('modalHabitoTitle').textContent = 'Editar hábito';
-        openModal('modalHabito');
+      row.querySelector('[data-act="edit"]').addEventListener('click', () => {
+        document.getElementById('editId').value = d.id;
+        document.getElementById('fName').value = h.name;
+        document.getElementById('fEmoji').value = h.emoji || '';
+        document.getElementById('fCat').value = h.category || 'outro';
+        document.getElementById('modalTitle').textContent = 'Editar hábito';
+        openModal('modal');
       });
-
-      row.querySelector('.del-h').addEventListener('click', async () => {
+      row.querySelector('[data-act="del"]').addEventListener('click', async () => {
         if (!confirm('Remover este hábito?')) return;
         await deleteDoc(doc(db, `users/${uid}/habitos`, d.id));
         toast('Hábito removido.'); load();
       });
-
-      list.appendChild(row);
     });
-    updateProgress(done, total);
+    updateProg(done, total);
   }
 
-  function updateProgress(done, total) {
+  function updateProg(done, total) {
     const pct = total ? Math.round(done/total*100) : 0;
     document.getElementById('habFrac').textContent = `${done}/${total}`;
-    document.getElementById('habBar').style.width = pct+'%';
-    document.getElementById('habPct').textContent = pct+'%';
+    document.getElementById('habBar').style.width = pct + '%';
+    document.getElementById('habPct').textContent = pct + '%';
   }
 
   function renderCons(dates) {
@@ -181,39 +159,37 @@
     grid.innerHTML = '';
     const now = new Date();
     for (let i = 27; i >= 0; i--) {
-      const d = new Date(now); d.setDate(now.getDate()-i);
-      const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const d = new Date(now); d.setDate(now.getDate() - i);
+      const s = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       const el = document.createElement('div');
-      el.className = `c-day ${dates.includes(str)?'done':''}`;
-      el.title = str;
+      el.className = `c-dot ${dates.includes(s)?'on':''}`;
+      el.title = s;
       grid.appendChild(el);
     }
   }
 
-  load();
-
-  document.getElementById('addHabitoBtn').addEventListener('click', () => {
-    document.getElementById('editHabitoId').value = '';
-    document.getElementById('habitoName').value = '';
-    document.getElementById('habitoEmoji').value = '';
-    document.getElementById('modalHabitoTitle').textContent = 'Novo hábito';
-    openModal('modalHabito');
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    document.getElementById('editId').value = '';
+    document.getElementById('fName').value = '';
+    document.getElementById('fEmoji').value = '';
+    document.getElementById('modalTitle').textContent = 'Novo hábito';
+    openModal('modal');
   });
 
-  document.getElementById('saveHabitoBtn').addEventListener('click', async () => {
-    const name = document.getElementById('habitoName').value.trim();
-    if (!name) return toast('Informe o nome do hábito.','error');
-    const data = { name, emoji: document.getElementById('habitoEmoji').value||'✅', category: document.getElementById('habitoCat').value, updatedAt: serverTimestamp() };
-    const editId = document.getElementById('editHabitoId').value;
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const name = document.getElementById('fName').value.trim();
+    if (!name) return toast('Informe o nome do hábito.', 'error');
+    const data = { name, emoji: document.getElementById('fEmoji').value || '✅', category: document.getElementById('fCat').value, updatedAt: serverTimestamp() };
+    const editId = document.getElementById('editId').value;
     if (editId) {
       await updateDoc(doc(db, `users/${uid}/habitos`, editId), data);
-      toast('Hábito atualizado!','success');
+      toast('Hábito atualizado!', 'success');
     } else {
       data.completedDates = []; data.createdAt = serverTimestamp();
-      await addDoc(colRef(), data);
-      toast('Hábito criado!','success');
+      await addDoc(collection(db, `users/${uid}/habitos`), data);
+      toast('Hábito criado!', 'success');
     }
-    closeModal('modalHabito'); load();
+    closeModal('modal'); load();
   });
 </script>
 </body>
